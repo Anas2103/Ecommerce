@@ -1,0 +1,20 @@
+# Laravel
+backend/vendor/
+backend/.env
+backend/storage/app/public/*
+backend/storage/logs/*
+backend/bootstrap/cache/*
+backend/database/database.sqlite
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

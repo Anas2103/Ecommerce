@@ -1,0 +1,16 @@
+const fs = require('fs');
+const f = 'c:/Users/Anas/Desktop/Ecommerce/frontend/src/pages/CheckoutPage.jsx';
+let c = fs.readFileSync(f, 'utf8');
+c = c.split("Adresse ajoutÃ©e").join("Adresse ajoutée");
+c = c.split("'border-blue-600 bg-blue-50 //'").join("'border-blue-600 bg-blue-50'");
+c = c.split("TÃ©l:").join("Tél:");
+c = c.split("TÃ©lÃ©phone").join("Téléphone");
+c = c.split("badge-indigo").join("badge-blue");
+c = c.split("â").join("→");
+c = c.split("Paiement simulÃ©").join("Paiement simulé");
+c = c.split("effectuÃ©e").join("effectuée");
+c = c.split("RÃ©duction").join("Réduction");
+c = c.split("Â·").join("·");
+c = c.split("â").join("–");
+fs.writeFileSync(f, c, 'utf8');
+console.log('done');
