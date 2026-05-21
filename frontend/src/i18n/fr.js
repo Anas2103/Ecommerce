@@ -8,7 +8,7 @@ export default {
       allProducts: 'Tous les produits',
       searchBtn: 'Rechercher',
     },
-    common: { loading: 'Chargement...', save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter', confirm: 'Confirmer', close: 'Fermer', back: 'Retour', next: 'Suivant', yes: 'Oui', no: 'Non', search: 'Rechercher', filter: 'Filtrer', sort: 'Trier', all: 'Tout', active: 'Actif', inactive: 'Inactif', actions: 'Actions', status: 'Statut', price: 'Prix', total: 'Total', quantity: 'Quantité', name: 'Nom', email: 'Email', phone: 'Téléphone', address: 'Adresse', date: 'Date', noResults: 'Aucun résultat', error: 'Une erreur est survenue', success: 'Opération réussie', required: 'Ce champ est requis' },
+    common: { loading: 'Chargement...', save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter', confirm: 'Confirmer', close: 'Fermer', back: 'Retour', next: 'Suivant', yes: 'Oui', no: 'Non', search: 'Rechercher', filter: 'Filtrer', sort: 'Trier', all: 'Tout', active: 'Actif', inactive: 'Inactif', actions: 'Actions', status: 'Statut', price: 'Prix', total: 'Total', quantity: 'Quantité', name: 'Nom', email: 'Email', phone: 'Téléphone', address: 'Adresse', date: 'Date', noResults: 'Aucun résultat', error: 'Une erreur est survenue', success: 'Opération réussie', required: 'Ce champ est requis', clear: 'Effacer' },
     auth: { login: 'Connexion', register: "Créer un compte", email: 'Email', password: 'Mot de passe', confirmPassword: 'Confirmer le mot de passe', name: 'Nom complet', phone: 'Téléphone', forgotPassword: 'Mot de passe oublié ?', resetPassword: 'Réinitialiser', loginBtn: 'Se connecter', registerBtn: "S'inscrire", noAccount: 'Pas encore de compte ?', hasAccount: 'Déjà un compte ?', role: 'Je suis...', client: 'Client', seller: 'Vendeur', loginSuccess: 'Connexion réussie', logoutSuccess: 'Déconnexion réussie', profileUpdated: 'Profil mis à jour', passwordChanged: 'Mot de passe modifié', currentPassword: 'Mot de passe actuel', newPassword: 'Nouveau mot de passe' },
     products: {
       title: 'Produits', featured: 'Produits Vedettes', trending: 'Tendances',
@@ -69,6 +69,24 @@ export default {
       promoTitle: '-10% sur votre première commande',
       promoSub: 'Code {{code}} à la caisse',
       orderNow: 'Commander maintenant',
+      recentlyViewed: 'Récemment consultés',
+      flashSale: 'Vente Flash',
+      flashSaleEnds: 'Fin dans',
+      flashSaleEmpty: 'Aucune offre flash pour le moment',
+    },
+    seller: {
+      analytics: 'Analytique',
+      revenue: 'Revenus',
+      last7days: '7 derniers jours',
+      importCSV: 'Importer CSV',
+      importTitle: 'Importer des produits en masse',
+      importDesc: 'Téléchargez le modèle CSV, remplissez-le, puis importez-le ici.',
+      downloadTemplate: 'Télécharger le modèle',
+      uploadFile: 'Importer un fichier CSV',
+      importPreview: 'Aperçu ({{count}} lignes)',
+      importBtn: 'Importer les produits',
+      importSuccess: '{{count}} produits importés',
+      importError: "L'importation a échoué",
     },
   }
 }

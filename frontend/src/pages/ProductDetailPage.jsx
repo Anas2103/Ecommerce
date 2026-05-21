@@ -34,8 +34,17 @@ export default function ProductDetailPage() {
     setActiveImage(0)
     setQuantity(1)
     api.get(`/products/${slug}`).then(({ data }) => {
-      setProduct(data.data)
+      const p = data.data
+      setProduct(p)
       setRelated(data.related || [])
+      // track recently viewed
+      try {
+        const key = 'recentlyViewed'
+        const prev = JSON.parse(localStorage.getItem(key) || '[]')
+        const entry = { id: p.id, slug: p.slug, name: p.name, final_price: p.final_price, primary_image_url: p.primary_image_url, category: p.category }
+        const next = [entry, ...prev.filter((x) => x.id !== p.id)].slice(0, 12)
+        localStorage.setItem(key, JSON.stringify(next))
+      } catch {}
     }).catch(() => toast.error('Product not found')).finally(() => setLoading(false))
   }, [slug])
 

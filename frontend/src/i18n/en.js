@@ -8,7 +8,7 @@ export default {
       allProducts: 'All Products',
       searchBtn: 'Search',
     },
-    common: { loading: 'Loading...', save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', confirm: 'Confirm', close: 'Close', back: 'Back', next: 'Next', yes: 'Yes', no: 'No', search: 'Search', filter: 'Filter', sort: 'Sort', all: 'All', active: 'Active', inactive: 'Inactive', actions: 'Actions', status: 'Status', price: 'Price', total: 'Total', quantity: 'Quantity', name: 'Name', email: 'Email', phone: 'Phone', address: 'Address', date: 'Date', noResults: 'No results found', error: 'An error occurred', success: 'Operation successful', required: 'This field is required' },
+    common: { loading: 'Loading...', save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', confirm: 'Confirm', close: 'Close', back: 'Back', next: 'Next', yes: 'Yes', no: 'No', search: 'Search', filter: 'Filter', sort: 'Sort', all: 'All', active: 'Active', inactive: 'Inactive', actions: 'Actions', status: 'Status', price: 'Price', total: 'Total', quantity: 'Quantity', name: 'Name', email: 'Email', phone: 'Phone', address: 'Address', date: 'Date', noResults: 'No results found', error: 'An error occurred', success: 'Operation successful', required: 'This field is required', clear: 'Clear' },
     auth: { login: 'Login', register: 'Create Account', email: 'Email', password: 'Password', confirmPassword: 'Confirm Password', name: 'Full Name', phone: 'Phone', forgotPassword: 'Forgot password?', resetPassword: 'Reset', loginBtn: 'Sign In', registerBtn: 'Register', noAccount: 'No account yet?', hasAccount: 'Already have an account?', role: 'I am a...', client: 'Customer', seller: 'Seller', loginSuccess: 'Login successful', logoutSuccess: 'Logged out successfully', profileUpdated: 'Profile updated', passwordChanged: 'Password changed', currentPassword: 'Current password', newPassword: 'New password' },
     products: {
       title: 'Products', featured: 'Featured Products', trending: 'Trending',
@@ -69,6 +69,24 @@ export default {
       promoTitle: '-10% on your first order',
       promoSub: 'Code {{code}} at checkout',
       orderNow: 'Shop Now',
+      recentlyViewed: 'Recently Viewed',
+      flashSale: 'Flash Sale',
+      flashSaleEnds: 'Ends in',
+      flashSaleEmpty: 'No flash deals right now',
+    },
+    seller: {
+      analytics: 'Analytics',
+      revenue: 'Revenue',
+      last7days: 'Last 7 days',
+      importCSV: 'Import CSV',
+      importTitle: 'Bulk Import Products',
+      importDesc: 'Download the CSV template, fill it in, then upload it here.',
+      downloadTemplate: 'Download Template',
+      uploadFile: 'Upload CSV file',
+      importPreview: 'Preview ({{count}} rows)',
+      importBtn: 'Import Products',
+      importSuccess: '{{count}} products imported',
+      importError: 'Import failed',
     },
   }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Package, Download, XCircle, ChevronRight, Truck, CreditCard, MapPin } from 'lucide-react'
+import { Package, Download, XCircle, ChevronRight, Truck, CreditCard, MapPin, CheckCircle2, Clock, RotateCcw } from 'lucide-react'
 import api from '../services/api'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import { useTranslation } from 'react-i18next'
@@ -145,25 +145,67 @@ export default function OrderDetailPage() {
 
             {/* Status timeline */}
             <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: 20, boxShadow: 'var(--shadow-card)' }}>
-              <h2 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--text-1)', fontSize: '0.9375rem' }}>History</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  { status: 'pending',   label: 'Order placed',  date: order.created_at },
-                  { status: 'confirmed', label: 'Confirmed',     date: order.paid_at },
-                  { status: 'shipped',   label: 'Shipped',       date: order.shipped_at },
-                  { status: 'delivered', label: 'Delivered',     date: order.delivered_at },
-                ].map(({ status, label, date }) => {
-                  const statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']
-                  const reached = statuses.indexOf(order.status) >= statuses.indexOf(status)
-                  return (
-                    <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 12, height: 12, borderRadius: '50%', flexShrink: 0, background: reached ? 'var(--primary)' : 'var(--border)' }} />
-                      <span style={{ fontSize: '0.875rem', fontWeight: 500, color: reached ? 'var(--text-1)' : 'var(--text-3)' }}>{label}</span>
-                      {date && <span style={{ fontSize: '0.75rem', marginLeft: 'auto', color: 'var(--text-3)' }}>{new Date(date).toLocaleDateString('en-GB')}</span>}
-                    </div>
-                  )
-                })}
-              </div>
+              <h2 style={{ fontWeight: 700, marginBottom: 20, color: 'var(--text-1)', fontSize: '0.9375rem' }}>Order Tracking</h2>
+              {order.status === 'cancelled' || order.status === 'refunded' ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px', background: order.status === 'cancelled' ? '#fff1f2' : '#f9fafb', borderRadius: 10, border: `1.5px solid ${order.status === 'cancelled' ? '#fecaca' : 'var(--border)'}` }}>
+                  {order.status === 'cancelled' ? <XCircle size={20} style={{ color: '#ef4444', flexShrink: 0 }} /> : <RotateCcw size={20} style={{ color: 'var(--text-3)', flexShrink: 0 }} />}
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: order.status === 'cancelled' ? '#ef4444' : 'var(--text-2)', margin: 0 }}>
+                      Order {order.status === 'cancelled' ? 'Cancelled' : 'Refunded'}
+                    </p>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-3)', margin: '2px 0 0' }}>
+                      {new Date(order.updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+              ) : (() => {
+                const STEPS = [
+                  { status: 'pending',   label: 'Order Placed',  sub: 'We received your order', icon: Package,       date: order.created_at },
+                  { status: 'confirmed', label: 'Confirmed',     sub: 'Payment confirmed',       icon: CheckCircle2,  date: order.paid_at },
+                  { status: 'shipped',   label: 'Shipped',       sub: 'On the way to you',       icon: Truck,         date: order.shipped_at },
+                  { status: 'delivered', label: 'Delivered',     sub: 'Enjoy your order!',       icon: MapPin,        date: order.delivered_at },
+                ]
+                const ORDER = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
+                const currentIdx = ORDER.indexOf(order.status)
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {STEPS.map(({ status, label, sub, icon: Icon, date }, i) => {
+                      const stepIdx = ORDER.indexOf(status)
+                      const done = currentIdx > stepIdx
+                      const active = currentIdx === stepIdx || (status === 'confirmed' && order.status === 'processing')
+                      const isLast = i === STEPS.length - 1
+                      return (
+                        <div key={status} style={{ display: 'flex', gap: 0, alignItems: 'stretch' }}>
+                          {/* Icon + line column */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 40, flexShrink: 0 }}>
+                            <div style={{
+                              width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: done ? 'var(--primary-btn)' : active ? 'var(--bg-accent)' : 'var(--bg-page)',
+                              border: done ? '2px solid var(--primary-btn)' : active ? '2px solid var(--primary)' : '2px solid var(--border)',
+                              transition: 'all 0.2s',
+                              boxShadow: active ? '0 0 0 4px var(--primary-ring)' : 'none',
+                            }}>
+                              <Icon size={15} style={{ color: done ? '#fff' : active ? 'var(--primary)' : 'var(--text-3)' }} />
+                            </div>
+                            {!isLast && (
+                              <div style={{ width: 2, flex: 1, minHeight: 24, background: done ? 'var(--primary)' : 'var(--border-light)', borderRadius: 1, margin: '4px 0' }} />
+                            )}
+                          </div>
+                          {/* Text column */}
+                          <div style={{ flex: 1, paddingLeft: 12, paddingBottom: isLast ? 0 : 20, paddingTop: 6 }}>
+                            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                              <p style={{ fontWeight: done || active ? 700 : 500, fontSize: '0.875rem', color: done || active ? 'var(--text-1)' : 'var(--text-3)', margin: 0 }}>{label}</p>
+                              {date && <span style={{ fontSize: '0.72rem', color: 'var(--text-3)', flexShrink: 0 }}>{new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+                            </div>
+                            <p style={{ fontSize: '0.78rem', color: active ? 'var(--primary)' : 'var(--text-3)', margin: '2px 0 0', fontWeight: active ? 600 : 400 }}>{sub}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Package, AlertTriangle, Plus, ShoppingCart, Clock, ChevronRight } from 'lucide-react'
+import { Package, AlertTriangle, Plus, ShoppingCart, Clock, ChevronRight, TrendingUp } from 'lucide-react'
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts'
 import api from '../../services/api'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import { Link } from 'react-router-dom'
@@ -14,23 +15,41 @@ const STATUS_STYLES = {
   refunded:   { bg: '#f9fafb', color: '#6b7280',  border: '#e5e7eb' },
 }
 
+function buildRevenueChart(orders) {
+  const days = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i)
+    days.push({ label: d.toLocaleDateString('en-GB', { weekday: 'short' }), date: d.toISOString().slice(0, 10), revenue: 0, count: 0 })
+  }
+  orders.forEach((o) => {
+    const d = o.created_at?.slice(0, 10)
+    const day = days.find((x) => x.date === d)
+    if (day) { day.revenue += Number(o.total) || 0; day.count++ }
+  })
+  return days
+}
+
 export default function SellerDashboard() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [chartTab, setChartTab] = useState('revenue')
 
   useEffect(() => {
     Promise.all([
       api.get('/seller/products', { params: { per_page: 5 } }),
       api.get('/seller/products', { params: { status: 'low_stock', per_page: 50 } }),
-      api.get('/seller/orders',   { params: { per_page: 5 } }),
+      api.get('/seller/orders',   { params: { per_page: 50 } }),
       api.get('/seller/orders',   { params: { status: 'pending', per_page: 1 } }),
     ]).then(([productsRes, lowStockRes, ordersRes, pendingRes]) => {
+      const allOrders = ordersRes.data.data || []
       setData({
         products:      productsRes.data,
         lowStock:      lowStockRes.data.data,
-        recentOrders:  ordersRes.data.data,
+        recentOrders:  allOrders.slice(0, 5),
         totalOrders:   ordersRes.data.meta?.total || 0,
         pendingOrders: pendingRes.data.meta?.total || 0,
+        chartData:     buildRevenueChart(allOrders),
+        totalRevenue:  allOrders.reduce((s, o) => s + (Number(o.total) || 0), 0),
       })
     }).finally(() => setLoading(false))
   }, [])
@@ -47,16 +66,15 @@ export default function SellerDashboard() {
       link: '/seller/products',
     },
     {
-      label: 'Low Stock', value: data?.lowStock?.length || 0,
-      sub: data?.lowStock?.length > 0 ? 'items need restocking' : 'all products stocked',
-      icon: AlertTriangle,
-      iconBg: '#fff7ed', iconColor: '#f97316',
+      label: 'Revenue (loaded)', value: `${(data?.totalRevenue || 0).toLocaleString()} MAD`,
+      sub: 'from loaded orders', icon: TrendingUp,
+      iconBg: '#f0fdf4', iconColor: '#16a34a',
       link: null,
     },
     {
       label: 'Total Orders', value: data?.totalOrders || 0,
       sub: 'orders containing your products', icon: ShoppingCart,
-      iconBg: '#f0fdf4', iconColor: '#16a34a',
+      iconBg: 'var(--bg-accent)', iconColor: 'var(--primary)',
       link: '/seller/orders',
     },
     {
@@ -100,6 +118,54 @@ export default function SellerDashboard() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Analytics charts */}
+      <div style={{ ...card, padding: '24px 28px' }}>
+        <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
+          <div className="flex items-center gap-3">
+            <TrendingUp size={18} style={{ color: 'var(--primary)' }} />
+            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', margin: 0 }}>Analytics — Last 7 days</h2>
+          </div>
+          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-page)', padding: 4, borderRadius: 8, border: '1.5px solid var(--border-light)' }}>
+            {[{ key: 'revenue', label: 'Revenue' }, { key: 'orders', label: 'Orders' }].map(({ key, label }) => (
+              <button key={key} onClick={() => setChartTab(key)} style={{ padding: '5px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, background: chartTab === key ? 'var(--primary-btn)' : 'transparent', color: chartTab === key ? '#fff' : 'var(--text-3)', transition: 'all 0.15s' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={220}>
+          {chartTab === 'revenue' ? (
+            <AreaChart data={data?.chartData || []} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} tickFormatter={(v) => v === 0 ? '0' : `${(v / 1000).toFixed(1)}k`} />
+              <Tooltip
+                contentStyle={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 10, fontSize: 12, color: 'var(--text-1)' }}
+                formatter={(v) => [`${Number(v).toLocaleString()} MAD`, 'Revenue']}
+              />
+              <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} fill="url(#revGrad)" />
+            </AreaChart>
+          ) : (
+            <BarChart data={data?.chartData || []} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 10, fontSize: 12, color: 'var(--text-1)' }}
+                formatter={(v) => [v, 'Orders']}
+              />
+              <Bar dataKey="count" fill="var(--primary-btn)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          )}
+        </ResponsiveContainer>
       </div>
 
       {/* Recent Orders */}

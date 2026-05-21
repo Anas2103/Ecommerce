@@ -1,10 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, Zap, Shield, RotateCcw, Truck } from 'lucide-react'
+import { ArrowRight, Zap, Shield, RotateCcw, Truck, Flame } from 'lucide-react'
 import api from '../services/api'
 import ProductCard from '../components/ProductCard'
+
+function useCountdown() {
+  const getRemaining = () => {
+    const now = new Date()
+    const midnight = new Date(now); midnight.setHours(24, 0, 0, 0)
+    const diff = Math.max(0, Math.floor((midnight - now) / 1000))
+    return { h: Math.floor(diff / 3600), m: Math.floor((diff % 3600) / 60), s: diff % 60 }
+  }
+  const [time, setTime] = useState(getRemaining)
+  useEffect(() => {
+    const id = setInterval(() => setTime(getRemaining()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return time
+}
 
 /* ── Demo products (shown when the API returns nothing) ── */
 const DEMO_PRODUCTS = [
@@ -99,6 +114,9 @@ export default function HomePage() {
   const { user } = useSelector((s) => s.auth)
   const [featured, setFeatured] = useState([])
   const [loading, setLoading] = useState(true)
+  const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [flashProducts, setFlashProducts] = useState([])
+  const countdown = useCountdown()
 
   useEffect(() => {
     const load = async () => {
@@ -108,7 +126,18 @@ export default function HomePage() {
       } catch {}
       finally { setLoading(false) }
     }
+    const loadFlash = async () => {
+      try {
+        const { data } = await api.get('/products', { params: { sort: 'discount', per_page: 8 } })
+        setFlashProducts((data.data || []).filter((p) => p.discount_percent > 0).slice(0, 8))
+      } catch {}
+    }
     load()
+    loadFlash()
+    try {
+      const rv = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
+      setRecentlyViewed(rv)
+    } catch {}
   }, [])
 
   const displayProducts = featured.length > 0 ? featured : DEMO_PRODUCTS
@@ -255,6 +284,94 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* ── Flash Sale ───────────────────────────────────── */}
+      {(flashProducts.length > 0 || true) && (
+        <section style={{ padding: '0 16px 16px', boxSizing: 'border-box' }}>
+          <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '20px' }}>
+            {/* Header row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 4, height: 24, background: '#ef4444', borderRadius: 3, flexShrink: 0 }} />
+                <Flame size={18} style={{ color: '#ef4444', flexShrink: 0 }} />
+                <h2 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--text-1)', margin: 0 }}>{t('home.flashSale')}</h2>
+              </div>
+              {/* Countdown */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-3)', fontWeight: 500 }}>{t('home.flashSaleEnds')}:</span>
+                {[
+                  { val: countdown.h, label: 'h' },
+                  { val: countdown.m, label: 'm' },
+                  { val: countdown.s, label: 's' },
+                ].map(({ val, label }, i) => (
+                  <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {i > 0 && <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ef4444' }}>:</span>}
+                    <span style={{
+                      minWidth: 32, height: 28, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      background: '#ef4444', color: '#fff', fontWeight: 800, fontSize: '0.8125rem',
+                      borderRadius: 6, fontVariantNumeric: 'tabular-nums',
+                    }}>
+                      {String(val).padStart(2, '0')}{label}
+                    </span>
+                  </span>
+                ))}
+              </div>
+              <Link to="/products?sort=discount" style={{ fontSize: '0.78rem', fontWeight: 600, color: '#ef4444', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+              >
+                {t('home.viewAll')} <ArrowRight size={12} />
+              </Link>
+            </div>
+            <div style={{ borderTop: '1px solid var(--border-light)', marginBottom: 16 }} />
+            {flashProducts.length === 0 ? (
+              <p style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-3)', fontSize: '0.875rem' }}>{t('home.flashSaleEmpty')}</p>
+            ) : (
+              <div className="product-grid">
+                {flashProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ── Recently Viewed ──────────────────────────────── */}
+      {recentlyViewed.length > 0 && (
+        <section style={{ padding: '0 16px 16px', boxSizing: 'border-box' }}>
+          <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '20px 20px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 4, height: 20, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+                <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-1)', margin: 0 }}>{t('home.recentlyViewed')}</h2>
+              </div>
+              <button
+                onClick={() => { localStorage.removeItem('recentlyViewed'); setRecentlyViewed([]) }}
+                style={{ fontSize: '0.72rem', color: 'var(--text-3)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+              >{t('common.clear')}</button>
+            </div>
+            <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
+              {recentlyViewed.map((p) => (
+                <Link
+                  key={p.id}
+                  to={`/products/${p.slug}`}
+                  style={{ flexShrink: 0, width: 140, textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 8, padding: 10, background: 'var(--bg-page)', border: '1.5px solid var(--border-light)', borderRadius: 10, transition: 'border-color 0.15s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-accent)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-light)'}
+                >
+                  <img
+                    src={p.primary_image_url}
+                    alt={p.name}
+                    style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 7 }}
+                    onError={(e) => e.target.src = '/placeholder.jpg'}
+                  />
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-1)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
+                  <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>{Number(p.final_price).toLocaleString()} MAD</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Promo banner ─────────────────────────────────── */}
       <section style={{ padding: '0 16px 16px', boxSizing: 'border-box' }}>
