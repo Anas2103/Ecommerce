@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { MapPin, Truck, CreditCard, CheckCircle, Plus } from 'lucide-react'
+import { MapPin, Truck, CreditCard, CheckCircle, Plus, Gift } from 'lucide-react'
 import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js'
 import { fetchCart } from '../store/cartSlice'
 import api from '../services/api'
@@ -416,6 +416,14 @@ function CheckoutPage() {
                 <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-1)' }}>{t('cart.total')}</span>
                 <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>{total.toLocaleString()} MAD</span>
               </div>
+            </div>
+
+            {/* Loyalty points earned hint */}
+            <div style={{ marginTop: 16, padding: '12px 14px', borderRadius: 10, background: 'linear-gradient(135deg, var(--primary-btn) 0%, var(--primary-btn-hover) 100%)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Gift size={16} color="#fff" style={{ flexShrink: 0 }} />
+              <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+                You'll earn <strong style={{ color: '#fff' }}>{Math.floor(total / 10)} loyalty points</strong> on this order!
+              </p>
             </div>
           </div>
         </div>

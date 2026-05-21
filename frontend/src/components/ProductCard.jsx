@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart } from 'lucide-react'
-import { useDispatch } from 'react-redux'
+import { ShoppingCart, Eye, GitCompare } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { addToCart } from '../store/cartSlice'
 import { setCartOpen } from '../store/uiSlice'
+import { toggleCompare } from '../store/compareSlice'
+import QuickViewModal from './QuickViewModal'
 import toast from 'react-hot-toast'
 
 const IMG_FALLBACK = 'https://placehold.co/400x400/e8f4fd/0066CC?text=Produit'
@@ -12,8 +14,11 @@ const IMG_FALLBACK = 'https://placehold.co/400x400/e8f4fd/0066CC?text=Produit'
 export default function ProductCard({ product }) {
   const dispatch = useDispatch()
   const { t } = useTranslation()
+  const compareList = useSelector((s) => s.compare?.items || [])
+  const isCompared = compareList.some((p) => p.id === product.id)
   const [addingToCart, setAddingToCart] = useState(false)
   const [imgError, setImgError] = useState(false)
+  const [quickView, setQuickView] = useState(false)
 
   const handleAddToCart = async (e) => {
     e.preventDefault()
@@ -40,6 +45,7 @@ export default function ProductCard({ product }) {
   return (
     <Link
       to={`/products/${product.slug}`}
+      className="product-card-link"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -91,20 +97,30 @@ export default function ProductCard({ product }) {
 
         {/* Out of stock overlay */}
         {outOfStock && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(255,255,255,0.55)',
-          }}>
-            <span style={{
-              background: '#1a2332', color: '#fff',
-              fontSize: '0.75rem', fontWeight: 700,
-              padding: '6px 14px', borderRadius: 20,
-            }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.55)' }}>
+            <span style={{ background: '#1a2332', color: '#fff', fontSize: '0.75rem', fontWeight: 700, padding: '6px 14px', borderRadius: 20 }}>
               {t('products.soldOut')}
             </span>
           </div>
         )}
+
+        {/* Hover action overlay */}
+        <div className="card-hover-actions" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0, transition: 'opacity 0.18s', background: 'rgba(0,0,0,0.18)', pointerEvents: 'none' }}>
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickView(true) }}
+            title="Quick view"
+            style={{ width: 38, height: 38, borderRadius: 10, background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-1)', pointerEvents: 'auto', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-btn)'; e.currentTarget.style.color = '#fff' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-1)' }}
+          ><Eye size={15} /></button>
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); dispatch(toggleCompare(product)); toast.success(isCompared ? 'Removed from compare' : 'Added to compare') }}
+            title={isCompared ? 'Remove from compare' : 'Compare'}
+            style={{ width: 38, height: 38, borderRadius: 10, background: isCompared ? 'var(--primary-btn)' : 'var(--bg-card)', border: '1.5px solid var(--border-light)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isCompared ? '#fff' : 'var(--text-1)', pointerEvents: 'auto', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => { if (!isCompared) { e.currentTarget.style.background = 'var(--primary-btn)'; e.currentTarget.style.color = '#fff' } }}
+            onMouseLeave={(e) => { if (!isCompared) { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-1)' } }}
+          ><GitCompare size={15} /></button>
+        </div>
       </div>
 
       {/* ── Content ── */}
@@ -176,7 +192,11 @@ export default function ProductCard({ product }) {
         )}
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .product-card-link:hover .card-hover-actions { opacity: 1 !important; }
+      `}</style>
+      {quickView && <QuickViewModal product={product} onClose={() => setQuickView(false)} />}
     </Link>
   )
 }

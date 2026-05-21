@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Camera, Plus, Trash2, User, Lock, MapPin } from 'lucide-react'
+import { Camera, Plus, Trash2, User, Lock, MapPin, Gift, Star } from 'lucide-react'
 import { setUser } from '../store/authSlice'
 import api from '../services/api'
 import { useTranslation } from 'react-i18next'
@@ -20,6 +20,17 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState(null)
   const [loadingAddresses, setLoadingAddresses] = useState(false)
   const [newAddrForm, setNewAddrForm] = useState(null)
+  const [points, setPoints] = useState(null)
+
+  useEffect(() => {
+    api.get('/orders', { params: { per_page: 100 } }).then(({ data }) => {
+      const orders = data.data || []
+      const earned = orders
+        .filter((o) => ['delivered', 'processing', 'shipped'].includes(o.status))
+        .reduce((sum, o) => sum + Math.floor(Number(o.total || 0) / 10), 0)
+      setPoints(earned)
+    }).catch(() => {})
+  }, [])
 
   const loadAddresses = async () => {
     if (addresses !== null) return
@@ -131,6 +142,50 @@ export default function ProfilePage() {
             }}>{user?.role}</span>
           </div>
         </div>
+
+        {/* Loyalty points card */}
+        {points !== null && (
+          <div style={{
+            background: 'linear-gradient(135deg, var(--primary-btn) 0%, var(--primary-btn-hover) 100%)',
+            borderRadius: 14, padding: '20px 24px', marginBottom: 20,
+            display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap',
+            boxShadow: '0 4px 20px var(--brand-md)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', right: -20, top: -20, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ position: 'absolute', right: 40, bottom: -30, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
+            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Gift size={24} color="#fff" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.75)', margin: '0 0 4px', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Loyalty Points</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>{points.toLocaleString()}</span>
+                <span style={{ fontSize: '0.84rem', color: 'rgba(255,255,255,0.7)' }}>pts</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end', flexShrink: 0 }}>
+              {[
+                { label: 'Silver', min: 0, max: 500, color: '#94a3b8' },
+                { label: 'Gold', min: 500, max: 2000, color: '#f59e0b' },
+                { label: 'Platinum', min: 2000, max: Infinity, color: '#818cf8' },
+              ].map(({ label, min, max, color }) => {
+                const active = points >= min && points < max
+                return (
+                  <span key={label} style={{ fontSize: '0.72rem', fontWeight: 700, color: active ? color : 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Star size={10} fill={active ? color : 'none'} stroke={active ? color : 'rgba(255,255,255,0.35)'} /> {label}
+                  </span>
+                )
+              })}
+            </div>
+            <div style={{ width: '100%', marginTop: 4 }}>
+              <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)', margin: '0 0 6px' }}>Earn 1 point for every 10 MAD spent on delivered orders</p>
+              <div style={{ height: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 99 }}>
+                <div style={{ height: 6, borderRadius: 99, background: '#fff', width: `${Math.min(100, (points % 500) / 5)}%`, transition: 'width 0.5s ease' }} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', borderRadius: 12, padding: 6, border: '1.5px solid var(--border-light)', boxShadow: 'var(--shadow-card)' }}>

@@ -4,6 +4,10 @@ import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
 import Chatbot from './components/Chatbot'
 import ProtectedRoute from './components/ProtectedRoute'
+import BackToTop from './components/BackToTop'
+import CookieBanner from './components/CookieBanner'
+import CompareBar from './components/CompareBar'
+import ErrorBoundary from './components/ErrorBoundary'
 
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/ProductsPage'
@@ -17,6 +21,9 @@ import ProfilePage from './pages/ProfilePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ComparePage from './pages/ComparePage'
+import NotFoundPage from './pages/NotFoundPage'
+import SellerStorePage from './pages/SellerStorePage'
 
 import AdminLayout from './layouts/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -41,59 +48,67 @@ function MainLayout({ children }) {
       <Footer />
       <CartDrawer />
       <Chatbot />
+      <BackToTop />
+      <CookieBanner />
+      <CompareBar />
     </div>
   )
 }
 
 export default function App() {
   return (
-    <Routes>
-      {/* Auth pages */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <ErrorBoundary>
+      <Routes>
+        {/* Auth pages */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-      {/* Admin panel */}
-      <Route path="/admin" element={
-        <ProtectedRoute roles={['admin']}>
-          <AdminLayout />
-        </ProtectedRoute>
-      }>
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="dashboard"  element={<AdminDashboard />} />
-        <Route path="products"   element={<AdminProducts />} />
-        <Route path="orders"     element={<AdminOrders />} />
-        <Route path="users"      element={<AdminUsers />} />
-        <Route path="categories" element={<AdminCategories />} />
-      </Route>
+        {/* Admin panel */}
+        <Route path="/admin" element={
+          <ProtectedRoute roles={['admin']}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard"  element={<AdminDashboard />} />
+          <Route path="products"   element={<AdminProducts />} />
+          <Route path="orders"     element={<AdminOrders />} />
+          <Route path="users"      element={<AdminUsers />} />
+          <Route path="categories" element={<AdminCategories />} />
+        </Route>
 
-      {/* Seller panel */}
-      <Route path="/seller" element={
-        <ProtectedRoute roles={['seller']}>
-          <SellerLayout />
-        </ProtectedRoute>
-      }>
-        <Route index element={<Navigate to="/seller/dashboard" replace />} />
-        <Route path="dashboard"        element={<SellerDashboard />} />
-        <Route path="products"         element={<SellerProducts />} />
-        <Route path="products/new"     element={<SellerProductForm />} />
-        <Route path="products/:id/edit" element={<SellerProductForm />} />
-        <Route path="orders"           element={<SellerOrders />} />
-      </Route>
+        {/* Seller panel */}
+        <Route path="/seller" element={
+          <ProtectedRoute roles={['seller']}>
+            <SellerLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Navigate to="/seller/dashboard" replace />} />
+          <Route path="dashboard"        element={<SellerDashboard />} />
+          <Route path="products"         element={<SellerProducts />} />
+          <Route path="products/new"     element={<SellerProductForm />} />
+          <Route path="products/:id/edit" element={<SellerProductForm />} />
+          <Route path="orders"           element={<SellerOrders />} />
+        </Route>
 
-      {/* Storefront */}
-      <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
-      <Route path="/products" element={<MainLayout><ProductsPage /></MainLayout>} />
-      <Route path="/products/:slug" element={<MainLayout><ProductDetailPage /></MainLayout>} />
-      <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
-      <Route path="/checkout" element={<MainLayout><ProtectedRoute><CheckoutPage /></ProtectedRoute></MainLayout>} />
-      <Route path="/orders" element={<MainLayout><ProtectedRoute><OrdersPage /></ProtectedRoute></MainLayout>} />
-      <Route path="/orders/:id" element={<MainLayout><ProtectedRoute><OrderDetailPage /></ProtectedRoute></MainLayout>} />
-      <Route path="/wishlist" element={<MainLayout><ProtectedRoute><WishlistPage /></ProtectedRoute></MainLayout>} />
-      <Route path="/profile" element={<MainLayout><ProtectedRoute><ProfilePage /></ProtectedRoute></MainLayout>} />
+        {/* Storefront */}
+        <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+        <Route path="/products" element={<MainLayout><ProductsPage /></MainLayout>} />
+        <Route path="/products/:slug" element={<MainLayout><ProductDetailPage /></MainLayout>} />
+        <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
+        <Route path="/checkout" element={<MainLayout><ProtectedRoute><CheckoutPage /></ProtectedRoute></MainLayout>} />
+        <Route path="/orders" element={<MainLayout><ProtectedRoute><OrdersPage /></ProtectedRoute></MainLayout>} />
+        <Route path="/orders/:id" element={<MainLayout><ProtectedRoute><OrderDetailPage /></ProtectedRoute></MainLayout>} />
+        <Route path="/wishlist" element={<MainLayout><ProtectedRoute><WishlistPage /></ProtectedRoute></MainLayout>} />
+        <Route path="/profile" element={<MainLayout><ProtectedRoute><ProfilePage /></ProtectedRoute></MainLayout>} />
+        <Route path="/compare" element={<MainLayout><ComparePage /></MainLayout>} />
+        <Route path="/sellers/:id" element={<MainLayout><SellerStorePage /></MainLayout>} />
+        <Route path="/404" element={<MainLayout><NotFoundPage /></MainLayout>} />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<MainLayout><NotFoundPage /></MainLayout>} />
+      </Routes>
+    </ErrorBoundary>
   )
 }
 

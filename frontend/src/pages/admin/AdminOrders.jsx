@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Download, Trash2, CheckSquare, Square } from 'lucide-react'
 import api from '../../services/api'
 import Pagination from '../../components/ui/Pagination'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+
+function exportCSV(rows) {
+  const headers = ['Order #', 'Customer', 'Email', 'Date', 'Status', 'Total (MAD)']
+  const lines = [headers, ...rows.map((o) => [
+    o.order_number, o.user?.name || '', o.user?.email || '',
+    new Date(o.created_at).toLocaleDateString('en-GB'),
+    o.status, Number(o.total).toFixed(2),
+  ])].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' })
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob)
+  a.download = `orders_${new Date().toISOString().slice(0, 10)}.csv`; a.click()
+}
 
 const STATUS_STYLES = {
   pending:    { bg: '#fefce8', color: '#ca8a04',  border: '#fde047' },
@@ -22,6 +35,22 @@ export default function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [selected, setSelected] = useState(new Set())
+  const [bulkStatus, setBulkStatus] = useState('')
+
+  const allSelected = orders.length > 0 && orders.every((o) => selected.has(o.id))
+  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(orders.map((o) => o.id)))
+  const toggleOne = (id) => setSelected((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
+
+  const applyBulkStatus = async () => {
+    if (!bulkStatus || selected.size === 0) return
+    try {
+      await Promise.all([...selected].map((id) => api.put(`/admin/orders/${id}/status`, { status: bulkStatus })))
+      setOrders(orders.map((o) => selected.has(o.id) ? { ...o, status: bulkStatus } : o))
+      setSelected(new Set()); setBulkStatus('')
+      toast.success(`Updated ${selected.size} orders`)
+    } catch { toast.error('Error') }
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -40,13 +69,24 @@ export default function AdminOrders() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3" style={{ paddingBottom: 8 }}>
-        <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
-        <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Orders</h1>
+      <div className="flex items-center justify-between flex-wrap" style={{ paddingBottom: 8, gap: 10 }}>
+        <div className="flex items-center gap-3">
+          <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Orders</h1>
+        </div>
+        <button
+          onClick={() => exportCSV(orders)}
+          className="flex items-center gap-2"
+          style={{ fontSize: '0.8rem', padding: '8px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', cursor: 'pointer', color: 'var(--text-2)', fontWeight: 600 }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-light)'; e.currentTarget.style.color = 'var(--text-2)' }}
+        >
+          <Download size={14} /> Export CSV
+        </button>
       </div>
 
       <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '14px 16px' }}>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap items-center">
           <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Search order #, customer..." className="input text-sm max-w-xs" />
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }} className="input text-sm w-auto">
             <option value="">All statuses</option>
@@ -54,6 +94,18 @@ export default function AdminOrders() {
               <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
             ))}
           </select>
+          {selected.size > 0 && (
+            <div className="flex items-center gap-2" style={{ marginLeft: 'auto' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-3)', fontWeight: 600 }}>{selected.size} selected</span>
+              <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} className="input text-sm w-auto">
+                <option value="">Bulk status…</option>
+                {['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((s) => (
+                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                ))}
+              </select>
+              <button onClick={applyBulkStatus} disabled={!bulkStatus} className="btn-primary" style={{ fontSize: '0.78rem', padding: '7px 14px' }}>Apply</button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -63,6 +115,11 @@ export default function AdminOrders() {
             <table className="w-full" style={{ fontSize: '0.8rem' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-page)', borderBottom: '1.5px solid var(--border-light)' }}>
+                  <th style={{ padding: '12px 16px', width: 40 }}>
+                    <button onClick={toggleAll} style={{ background: 'none', border: 'none', cursor: 'pointer', color: allSelected ? 'var(--primary)' : 'var(--text-3)', display: 'flex', padding: 0 }}>
+                      {allSelected ? <CheckSquare size={15} /> : <Square size={15} />}
+                    </button>
+                  </th>
                   {['Order', 'Customer', 'Date', 'Status', 'Total', 'Actions'].map((h) => (
                     <th key={h} className="text-left" style={{ padding: '12px 20px', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-3)' }}>{h}</th>
                   ))}
@@ -72,10 +129,15 @@ export default function AdminOrders() {
                 {orders.map((order, i) => {
                   const s = STATUS_STYLES[order.status] || STATUS_STYLES.refunded
                   return (
-                    <tr key={order.id} style={{ borderTop: i > 0 ? '1px solid var(--border-light)' : 'none' }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    <tr key={order.id} style={{ borderTop: i > 0 ? '1px solid var(--border-light)' : 'none', background: selected.has(order.id) ? 'var(--bg-accent)' : 'transparent' }}
+                      onMouseEnter={(e) => { if (!selected.has(order.id)) e.currentTarget.style.background = 'var(--bg-page)' }}
+                      onMouseLeave={(e) => { if (!selected.has(order.id)) e.currentTarget.style.background = 'transparent' }}
                     >
+                      <td style={{ padding: '16px 16px', width: 40 }}>
+                        <button onClick={() => toggleOne(order.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: selected.has(order.id) ? 'var(--primary)' : 'var(--text-3)', display: 'flex', padding: 0 }}>
+                          {selected.has(order.id) ? <CheckSquare size={15} /> : <Square size={15} />}
+                        </button>
+                      </td>
                       <td style={{ padding: '16px 20px' }}>
                         <Link to={`/orders/${order.id}`} style={{ fontWeight: 600, color: 'var(--primary)', textDecoration: 'none' }}>{order.order_number}</Link>
                       </td>

@@ -3,6 +3,7 @@ import authReducer from './authSlice'
 import cartReducer from './cartSlice'
 import themeReducer from './themeSlice'
 import uiReducer from './uiSlice'
+import compareReducer from './compareSlice'
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     cart: cartReducer,
     theme: themeReducer,
     ui: uiReducer,
+    compare: compareReducer,
   },
 })
 
