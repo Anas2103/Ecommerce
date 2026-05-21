@@ -136,7 +136,7 @@ export default function SellerProductForm() {
         >
           <ArrowLeft size={20} />
         </button>
-        <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3 }} />
+        <div style={{ width: 4, height: 28, background: 'var(--primary)', borderRadius: 3 }} />
         <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>{isEdit ? 'Edit product' : 'New product'}</h1>
       </div>
 
@@ -216,14 +216,14 @@ export default function SellerProductForm() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
               {existingImages.map((img) => (
                 <div key={img.id} style={{ position: 'relative' }} className="group">
-                  <img src={img.url} alt="" style={{ width: 96, height: 96, borderRadius: 10, objectFit: 'cover', border: img.is_primary ? '2px solid #0066CC' : '1.5px solid var(--border-light)' }} />
+                  <img src={img.url} alt="" style={{ width: 96, height: 96, borderRadius: 10, objectFit: 'cover', border: img.is_primary ? '2px solid var(--primary)' : '1.5px solid var(--border-light)' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', opacity: 0, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }} className="group-hover:opacity-100 transition-opacity">
                     {!img.is_primary && (
-                      <button type="button" onClick={() => setAsPrimary(img.id)} style={{ fontSize: '0.68rem', color: '#fff', background: '#0066CC', borderRadius: 4, padding: '2px 6px', border: 'none', cursor: 'pointer' }}>Main</button>
+                      <button type="button" onClick={() => setAsPrimary(img.id)} style={{ fontSize: '0.68rem', color: '#fff', background: 'var(--primary-btn)', borderRadius: 4, padding: '2px 6px', border: 'none', cursor: 'pointer' }}>Main</button>
                     )}
                     <button type="button" onClick={() => removeExistingImage(img.id)} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}><X size={14} /></button>
                   </div>
-                  {img.is_primary && <span style={{ position: 'absolute', top: 4, left: 4, fontSize: '0.68rem', background: '#0066CC', color: '#fff', borderRadius: 4, padding: '1px 5px' }}>✓</span>}
+                  {img.is_primary && <span style={{ position: 'absolute', top: 4, left: 4, fontSize: '0.68rem', background: 'var(--primary-btn)', color: '#fff', borderRadius: 4, padding: '1px 5px' }}>✓</span>}
                 </div>
               ))}
             </div>
@@ -232,7 +232,7 @@ export default function SellerProductForm() {
           <div
             {...getRootProps()}
             style={{
-              border: `2px dashed ${isDragActive ? '#0066CC' : 'var(--border)'}`,
+              border: `2px dashed ${isDragActive ? 'var(--primary)' : 'var(--border)'}`,
               background: isDragActive ? 'var(--bg-accent)' : 'transparent',
               borderRadius: 12, padding: 32, textAlign: 'center', cursor: 'pointer',
               transition: 'all 0.15s',
@@ -275,11 +275,11 @@ export default function SellerProductForm() {
         <div style={sectionCard}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-1)' }}>
-              <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} style={{ accentColor: '#0066CC', width: 16, height: 16 }} />
+              <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} style={{ accentColor: 'var(--primary)', width: 16, height: 16 }} />
               Active (visible to customers)
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-1)' }}>
-              <input type="checkbox" name="is_featured" checked={form.is_featured} onChange={handleChange} style={{ accentColor: '#0066CC', width: 16, height: 16 }} />
+              <input type="checkbox" name="is_featured" checked={form.is_featured} onChange={handleChange} style={{ accentColor: 'var(--primary)', width: 16, height: 16 }} />
               Featured product
             </label>
           </div>

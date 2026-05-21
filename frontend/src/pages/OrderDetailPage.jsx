@@ -60,7 +60,7 @@ export default function OrderDetailPage() {
               <Link
                 to="/orders"
                 style={{ color: 'var(--text-3)', transition: 'color 0.15s', textDecoration: 'none' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
                 onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-3)'}
               >
                 {t('orders.title')}
@@ -157,7 +157,7 @@ export default function OrderDetailPage() {
                   const reached = statuses.indexOf(order.status) >= statuses.indexOf(status)
                   return (
                     <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 12, height: 12, borderRadius: '50%', flexShrink: 0, background: reached ? '#0066CC' : 'var(--border)' }} />
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', flexShrink: 0, background: reached ? 'var(--primary)' : 'var(--border)' }} />
                       <span style={{ fontSize: '0.875rem', fontWeight: 500, color: reached ? 'var(--text-1)' : 'var(--text-3)' }}>{label}</span>
                       {date && <span style={{ fontSize: '0.75rem', marginLeft: 'auto', color: 'var(--text-3)' }}>{new Date(date).toLocaleDateString('en-GB')}</span>}
                     </div>
@@ -172,7 +172,7 @@ export default function OrderDetailPage() {
             {order.address && (
               <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: 16, boxShadow: 'var(--shadow-card)' }}>
                 <h3 style={{ fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-1)', fontSize: '0.875rem' }}>
-                  <MapPin size={16} style={{ color: '#0066CC' }} />{t('checkout.address')}
+                  <MapPin size={16} style={{ color: 'var(--primary)' }} />{t('checkout.address')}
                 </h3>
                 <div style={{ fontSize: '0.8125rem', lineHeight: 1.7, color: 'var(--text-2)' }}>
                   <p style={{ color: 'var(--text-1)', fontWeight: 600, margin: 0 }}>{order.address.full_name}</p>
@@ -185,7 +185,7 @@ export default function OrderDetailPage() {
             )}
             <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: 16, boxShadow: 'var(--shadow-card)' }}>
               <h3 style={{ fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-1)', fontSize: '0.875rem' }}>
-                <CreditCard size={16} style={{ color: '#0066CC' }} />{t('checkout.payment')}
+                <CreditCard size={16} style={{ color: 'var(--primary)' }} />{t('checkout.payment')}
               </h3>
               <div style={{ fontSize: '0.8125rem', lineHeight: 1.7, color: 'var(--text-2)' }}>
                 <p style={{ margin: 0 }}>Method: {order.payment_method}</p>
@@ -198,7 +198,7 @@ export default function OrderDetailPage() {
             {order.shipping_method && (
               <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: 16, boxShadow: 'var(--shadow-card)' }}>
                 <h3 style={{ fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-1)', fontSize: '0.875rem' }}>
-                  <Truck size={16} style={{ color: '#0066CC' }} />{t('checkout.shipping')}
+                  <Truck size={16} style={{ color: 'var(--primary)' }} />{t('checkout.shipping')}
                 </h3>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--text-2)', margin: 0 }}>{order.shipping_method.name_fr || order.shipping_method.name}</p>
               </div>

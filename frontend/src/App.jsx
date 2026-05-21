@@ -84,7 +84,7 @@ export default function App() {
       {/* Storefront */}
       <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
       <Route path="/products" element={<MainLayout><ProductsPage /></MainLayout>} />
-      <Route path="/products/:id" element={<MainLayout><ProductDetailPage /></MainLayout>} />
+      <Route path="/products/:slug" element={<MainLayout><ProductDetailPage /></MainLayout>} />
       <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
       <Route path="/checkout" element={<MainLayout><ProtectedRoute><CheckoutPage /></ProtectedRoute></MainLayout>} />
       <Route path="/orders" element={<MainLayout><ProtectedRoute><OrdersPage /></ProtectedRoute></MainLayout>} />

@@ -53,7 +53,7 @@ export default function ProductCard({ product }) {
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.02)'
-        e.currentTarget.style.boxShadow = '0 10px 32px rgba(0,102,204,0.14)'
+        e.currentTarget.style.boxShadow = '0 10px 32px var(--brand-sm)'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'scale(1)'
@@ -112,7 +112,7 @@ export default function ProductCard({ product }) {
 
         {/* Category */}
         {catName && (
-          <p style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#0066CC', marginBottom: 4 }}>
+          <p style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--primary)', marginBottom: 4 }}>
             {catName}
           </p>
         )}
@@ -128,7 +128,7 @@ export default function ProductCard({ product }) {
 
         {/* Price */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 12 }}>
-          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#0066CC' }}>
+          <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>
             {Number(finalPrice).toLocaleString('fr-MA')} MAD
           </span>
           {hasDiscount && (
@@ -147,16 +147,16 @@ export default function ProductCard({ product }) {
               width: '100%',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               padding: '9px 12px',
-              background: addingToCart ? '#0052A3' : '#0066CC',
+              background: addingToCart ? 'var(--primary-btn-hover)' : 'var(--primary-btn)',
               color: '#fff',
               fontSize: '0.8rem', fontWeight: 700,
               border: 'none', borderRadius: 8, cursor: 'pointer',
-              boxShadow: addingToCart ? 'none' : '0 2px 8px rgba(0,102,204,0.24)',
+              boxShadow: addingToCart ? 'none' : '0 2px 8px var(--brand-md)',
               transition: 'background 0.15s, box-shadow 0.15s',
               opacity: addingToCart ? 0.85 : 1,
             }}
-            onMouseEnter={(e) => { if (!addingToCart) e.currentTarget.style.background = '#0052A3' }}
-            onMouseLeave={(e) => { if (!addingToCart) e.currentTarget.style.background = '#0066CC' }}
+            onMouseEnter={(e) => { if (!addingToCart) e.currentTarget.style.background = 'var(--primary-btn-hover)' }}
+            onMouseLeave={(e) => { if (!addingToCart) e.currentTarget.style.background = 'var(--primary-btn)' }}
           >
             {addingToCart
               ? <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} />

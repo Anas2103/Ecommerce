@@ -41,11 +41,11 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between" style={{ paddingBottom: 8 }}>
         <div className="flex items-center gap-3">
-          <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
-          <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>Products</h1>
+          <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Products</h1>
         </div>
       </div>
 
@@ -119,7 +119,9 @@ export default function AdminProducts() {
           </div>
         </div>
       )}
-      <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+        <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      </div>
     </div>
   )
 }

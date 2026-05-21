@@ -14,6 +14,13 @@ class CartController extends Controller
     private function getOrCreateCart(Request $request): Cart
     {
         $user = $request->user();
+
+        // Cart routes have no auth middleware — resolve user from Bearer token manually
+        if (!$user && $request->bearerToken()) {
+            $token = \Laravel\Sanctum\PersonalAccessToken::findToken($request->bearerToken());
+            $user  = $token?->tokenable;
+        }
+
         if ($user) {
             return Cart::firstOrCreate(['user_id' => $user->id]);
         }

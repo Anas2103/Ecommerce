@@ -28,7 +28,7 @@ export default function AdminLayout() {
       <aside className="w-56 flex flex-col flex-shrink-0" style={{ background: 'var(--bg-card)', borderRight: '1.5px solid var(--border-light)' }}>
 
         {/* Brand */}
-        <div style={{ padding: '16px', background: '#0066CC' }}>
+        <div style={{ padding: '16px', background: 'var(--primary-btn)' }}>
           <div className="flex items-center gap-2.5">
             <div style={{ width: 28, height: 28, background: 'rgba(255,255,255,0.15)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>A</span>
@@ -51,7 +51,7 @@ export default function AdminLayout() {
                   display: 'flex', alignItems: 'center', gap: 9,
                   padding: '8px 12px', borderRadius: 8, fontSize: '0.8rem',
                   fontWeight: isActive ? 700 : 400,
-                  background: isActive ? '#0066CC' : 'transparent',
+                  background: isActive ? 'var(--primary-btn)' : 'transparent',
                   color: isActive ? '#fff' : 'var(--text-2)',
                   textDecoration: 'none', transition: 'all 0.15s',
                 })}
@@ -83,7 +83,7 @@ export default function AdminLayout() {
         <div style={{ padding: '12px', borderTop: '1.5px solid var(--border-light)' }}>
           <div className="flex items-center gap-2.5 mb-2">
             <img
-              src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'A')}&background=0066CC&color=fff&size=64`}
+              src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'A')}&background=0D6EFD&color=fff&size=64`}
               alt=""
               style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
             />
@@ -106,7 +106,7 @@ export default function AdminLayout() {
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bg-page)' }}>
-        <div style={{ padding: '20px 24px' }}>
+        <div style={{ padding: '24px 20px' }}>
           <Outlet />
         </div>
       </main>

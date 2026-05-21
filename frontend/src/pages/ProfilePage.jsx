@@ -90,7 +90,7 @@ export default function ProfilePage() {
     fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box',
     transition: 'border-color 0.15s, box-shadow 0.15s',
   }
-  const onFocus = (e) => { e.target.style.borderColor = '#0066CC'; e.target.style.boxShadow = '0 0 0 3px rgba(0,102,204,0.13)'; e.target.style.background = 'var(--bg-card)' }
+  const onFocus = (e) => { e.target.style.borderColor = 'var(--primary)'; e.target.style.boxShadow = '0 0 0 3px var(--primary-ring)'; e.target.style.background = 'var(--bg-card)' }
   const onBlur  = (e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; e.target.style.background = 'var(--bg-input)' }
 
   return (
@@ -98,7 +98,7 @@ export default function ProfilePage() {
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-          <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3 }} />
+          <div style={{ width: 4, height: 28, background: 'var(--primary)', borderRadius: 3 }} />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-1)' }}>{t('profile.title')}</h1>
         </div>
 
@@ -109,12 +109,12 @@ export default function ProfilePage() {
               src={user?.avatar_url}
               alt={user?.name}
               style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--border-accent)' }}
-              onError={(e) => e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=0066CC&color=fff`}
+              onError={(e) => e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=0D6EFD&color=fff`}
             />
             <label style={{
               position: 'absolute', bottom: 0, right: 0,
               width: 28, height: 28, borderRadius: '50%',
-              background: '#0066CC', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--primary-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', border: '2px solid var(--bg-card)',
             }}>
               <Camera size={13} color="#fff" />
@@ -127,7 +127,7 @@ export default function ProfilePage() {
             <span style={{
               display: 'inline-flex', alignItems: 'center', padding: '3px 10px',
               background: 'var(--bg-accent)', border: '1px solid var(--border-accent)',
-              borderRadius: 6, color: '#0066CC', fontSize: '0.72rem', fontWeight: 700, textTransform: 'capitalize',
+              borderRadius: 6, color: 'var(--primary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'capitalize',
             }}>{user?.role}</span>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function ProfilePage() {
                   flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
                   padding: '9px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
                   fontSize: '0.82rem', fontWeight: active ? 700 : 500,
-                  background: active ? '#0066CC' : 'transparent',
+                  background: active ? 'var(--primary-btn)' : 'transparent',
                   color: active ? '#fff' : 'var(--text-3)',
                   transition: 'all 0.15s',
                 }}
@@ -229,7 +229,7 @@ export default function ProfilePage() {
                     <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                       {!addr.is_default && (
                         <button onClick={() => setDefaultAddress(addr.id)}
-                          style={{ fontSize: '0.78rem', fontWeight: 600, color: '#0066CC', background: 'var(--bg-accent)', border: '1px solid var(--border-accent)', borderRadius: 8, padding: '5px 12px', cursor: 'pointer', transition: 'background 0.15s' }}
+                          style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--primary)', background: 'var(--bg-accent)', border: '1px solid var(--border-accent)', borderRadius: 8, padding: '5px 12px', cursor: 'pointer', transition: 'background 0.15s' }}
                           onMouseEnter={(e) => e.currentTarget.style.background = 'var(--border-accent)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-accent)'}
                         >
@@ -280,7 +280,7 @@ export default function ProfilePage() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                       fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.18s',
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0066CC'; e.currentTarget.style.color = '#0066CC'; e.currentTarget.style.background = 'var(--bg-accent)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.background = 'var(--bg-accent)' }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.background = 'transparent' }}
                   >
                     <Plus size={16} /> {t('profile.addAddress')}

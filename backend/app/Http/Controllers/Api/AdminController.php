@@ -40,7 +40,7 @@ class AdminController extends Controller
 
         $revenueMonthly = Order::where('payment_status', 'paid')
             ->where('created_at', '>=', $yearAgo)
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(total) as revenue, COUNT(*) as orders')
+            ->selectRaw("strftime('%Y-%m', created_at) as month, SUM(total) as revenue, COUNT(*) as orders")
             ->groupBy('month')
             ->orderBy('month')
             ->get();

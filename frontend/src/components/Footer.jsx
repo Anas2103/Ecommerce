@@ -32,20 +32,20 @@ function NavLink({ to, children }) {
         display: 'inline-flex', alignItems: 'center', gap: 8,
         padding: '7px 12px', borderRadius: 8,
         fontSize: '0.875rem', fontWeight: 500,
-        color: '#8ab0d0', textDecoration: 'none',
+        color: 'var(--nav-text)', textDecoration: 'none',
         border: '1px solid transparent',
         transition: 'all 0.18s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(0,102,204,0.25)'
+        e.currentTarget.style.background = 'var(--brand-bd)'
         e.currentTarget.style.color = '#fff'
-        e.currentTarget.style.borderColor = 'rgba(0,102,204,0.5)'
-        e.currentTarget.style.boxShadow = '0 0 16px rgba(0,102,204,0.35)'
+        e.currentTarget.style.borderColor = 'var(--brand-brd)'
+        e.currentTarget.style.boxShadow = '0 0 16px var(--brand-br)'
         e.currentTarget.style.transform = 'translateX(5px)'
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent'
-        e.currentTarget.style.color = '#8ab0d0'
+        e.currentTarget.style.color = 'var(--nav-text)'
         e.currentTarget.style.borderColor = 'transparent'
         e.currentTarget.style.boxShadow = 'none'
         e.currentTarget.style.transform = 'translateX(0)'
@@ -61,7 +61,7 @@ export default function Footer() {
   return (
     <footer style={{ background: 'linear-gradient(160deg, #09111f 0%, #0c1a32 55%, #071018 100%)', marginTop: 'auto' }}>
       {/* Glowing top border */}
-      <div style={{ height: 3, background: 'linear-gradient(90deg, transparent 0%, #0066CC 30%, #4da6ff 50%, #0066CC 70%, transparent 100%)' }} />
+      <div style={{ height: 3, background: 'linear-gradient(90deg, transparent 0%, var(--primary) 30%, var(--nav-accent) 50%, var(--primary) 70%, transparent 100%)' }} />
 
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '60px 32px 32px' }}>
 
@@ -72,15 +72,15 @@ export default function Footer() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
               <div style={{
-                width: 42, height: 42, background: '#0066CC', borderRadius: 12,
+                width: 42, height: 42, background: 'var(--primary-btn)', borderRadius: 12,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 24px rgba(0,102,204,0.55)',
+                boxShadow: '0 0 24px var(--brand-xl)',
               }}>
                 <span style={{ color: '#fff', fontWeight: 900, fontSize: 18, lineHeight: 1 }}>E</span>
               </div>
               <span style={{ color: '#fff', fontWeight: 800, fontSize: 20, letterSpacing: '-0.01em' }}>Ecommerce</span>
             </div>
-            <p style={{ color: '#6a90b4', fontSize: '0.9rem', lineHeight: 1.75, marginBottom: 28, maxWidth: 280 }}>
+            <p style={{ color: 'var(--nav-cat)', fontSize: '0.9rem', lineHeight: 1.75, marginBottom: 28, maxWidth: 280 }}>
               Votre boutique en ligne de confiance au Maroc. Des milliers de produits livrés rapidement directement chez vous.
             </p>
 
@@ -89,9 +89,9 @@ export default function Footer() {
               {['Livraison 48h', 'Paiement sécurisé', 'Retours gratuits'].map((badge) => (
                 <span key={badge} style={{
                   padding: '4px 10px', borderRadius: 6,
-                  background: 'rgba(0,102,204,0.15)',
-                  border: '1px solid rgba(0,102,204,0.3)',
-                  color: '#4da6ff', fontSize: '0.72rem', fontWeight: 600,
+                  background: 'var(--brand-sm)',
+                  border: '1px solid var(--brand-br)',
+                  color: 'var(--nav-accent)', fontSize: '0.72rem', fontWeight: 600,
                 }}>
                   {badge}
                 </span>
@@ -108,24 +108,24 @@ export default function Footer() {
                   style={{
                     width: 40, height: 40, borderRadius: 10,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#6a90b4',
+                    background: 'var(--nav-line-md)',
+                    border: '1px solid var(--nav-line-lg)',
+                    color: 'var(--nav-cat)',
                     fontWeight: 800, fontSize: '0.8rem',
                     transition: 'all 0.2s ease',
                     textDecoration: 'none',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#0066CC'
+                    e.currentTarget.style.background = 'var(--primary-btn)'
                     e.currentTarget.style.color = '#fff'
-                    e.currentTarget.style.borderColor = '#0066CC'
-                    e.currentTarget.style.boxShadow = '0 0 20px rgba(0,102,204,0.6)'
+                    e.currentTarget.style.borderColor = 'var(--primary)'
+                    e.currentTarget.style.boxShadow = '0 0 20px var(--brand-xl)'
                     e.currentTarget.style.transform = 'translateY(-3px)'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-                    e.currentTarget.style.color = '#6a90b4'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+                    e.currentTarget.style.background = 'var(--nav-line-md)'
+                    e.currentTarget.style.color = 'var(--nav-cat)'
+                    e.currentTarget.style.borderColor = 'var(--nav-line-lg)'
                     e.currentTarget.style.boxShadow = 'none'
                     e.currentTarget.style.transform = 'translateY(0)'
                   }}
@@ -174,13 +174,13 @@ export default function Footer() {
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 34, height: 34, borderRadius: 9,
-                    background: 'rgba(0,102,204,0.2)',
-                    border: '1px solid rgba(0,102,204,0.35)',
+                    background: 'var(--brand-md)',
+                    border: '1px solid var(--brand-br)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>
-                    <Icon size={15} style={{ color: '#4da6ff' }} />
+                    <Icon size={15} style={{ color: 'var(--nav-accent)' }} />
                   </div>
-                  <span style={{ color: '#8ab0d0', fontSize: '0.875rem' }}>{text}</span>
+                  <span style={{ color: 'var(--nav-text)', fontSize: '0.875rem' }}>{text}</span>
                 </div>
               ))}
             </div>
@@ -190,7 +190,7 @@ export default function Footer() {
               <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', marginBottom: 12 }}>
                 Newsletter
               </p>
-              <p style={{ color: '#6a90b4', fontSize: '0.78rem', marginBottom: 12 }}>
+              <p style={{ color: 'var(--nav-cat)', fontSize: '0.78rem', marginBottom: 12 }}>
                 Offres exclusives et nouveautés directement dans votre boîte mail.
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -204,18 +204,18 @@ export default function Footer() {
                     color: '#fff', fontSize: '0.82rem', outline: 'none',
                     transition: 'border-color 0.15s',
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = '#0066CC'; e.target.style.boxShadow = '0 0 0 3px rgba(0,102,204,0.2)' }}
+                  onFocus={(e) => { e.target.style.borderColor = 'var(--primary)'; e.target.style.boxShadow = '0 0 0 3px var(--brand-md)' }}
                   onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; e.target.style.boxShadow = 'none' }}
                 />
                 <button
                   style={{
                     padding: '9px 18px', borderRadius: 9, border: 'none',
-                    background: '#0066CC', color: '#fff',
+                    background: 'var(--primary-btn)', color: '#fff',
                     fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
                     transition: 'all 0.18s', whiteSpace: 'nowrap',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#0052A3'; e.currentTarget.style.boxShadow = '0 0 20px rgba(0,102,204,0.55)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#0066CC'; e.currentTarget.style.boxShadow = 'none' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-btn-hover)'; e.currentTarget.style.boxShadow = '0 0 20px var(--brand-xl)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary-btn)'; e.currentTarget.style.boxShadow = 'none' }}
                 >
                   S'abonner
                 </button>
@@ -231,11 +231,47 @@ export default function Footer() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 12,
         }}>
-          <p style={{ color: '#3d5a78', fontSize: '0.82rem' }}>© 2025 Ecommerce.ma — Tous droits réservés.</p>
-          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <p style={{ color: 'var(--nav-dim)', fontSize: '0.82rem' }}>© 2025 Ecommerce.ma — Tous droits réservés.</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
             {['SAV 7j/7', 'Livraison 48h', 'Paiement 100% sécurisé', 'Retours gratuits'].map((item) => (
-              <span key={item} style={{ color: '#3d5a78', fontSize: '0.82rem' }}>{item}</span>
+              <span key={item} style={{ color: 'var(--nav-dim)', fontSize: '0.82rem' }}>{item}</span>
             ))}
+            {/* Figma badge */}
+            <a
+              href="https://figma.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '4px 10px', borderRadius: 7,
+                background: 'rgba(162,89,255,0.1)',
+                border: '1px solid rgba(162,89,255,0.25)',
+                textDecoration: 'none',
+                transition: 'all 0.18s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(162,89,255,0.2)'
+                e.currentTarget.style.borderColor = 'rgba(162,89,255,0.5)'
+                e.currentTarget.style.boxShadow = '0 0 12px rgba(162,89,255,0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(162,89,255,0.1)'
+                e.currentTarget.style.borderColor = 'rgba(162,89,255,0.25)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              {/* Figma logo mark */}
+              <svg width="12" height="16" viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 28.5C19 24.91 21.91 22 25.5 22C29.09 22 32 24.91 32 28.5C32 32.09 29.09 35 25.5 35C21.91 35 19 32.09 19 28.5Z" fill="#1ABCFE"/>
+                <path d="M6 45.5C6 41.91 8.91 39 12.5 39H19V45.5C19 49.09 16.09 52 12.5 52C8.91 52 6 49.09 6 45.5Z" fill="#0ACF83"/>
+                <path d="M19 5V22H25.5C29.09 22 32 19.09 32 15.5C32 11.91 29.09 9 25.5 9H19V5Z" fill="#FF7262"/>
+                <path d="M6 15.5C6 19.09 8.91 22 12.5 22H19V9H12.5C8.91 9 6 11.91 6 15.5Z" fill="#F24E1E"/>
+                <path d="M6 28.5C6 32.09 8.91 35 12.5 35H19V22H12.5C8.91 22 6 24.91 6 28.5Z" fill="#FF7262"/>
+              </svg>
+              <span style={{ color: '#a259ff', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.02em' }}>
+                Designed with Figma
+              </span>
+            </a>
           </div>
         </div>
       </div>

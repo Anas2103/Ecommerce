@@ -4,19 +4,22 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toggleChatbot } from '../store/uiSlice'
 import api from '../services/api'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const FONT = "'Plus Jakarta Sans', system-ui, sans-serif"
 
 export default function Chatbot() {
   const dispatch = useDispatch()
+  const { t, i18n } = useTranslation()
   const { chatbotOpen } = useSelector((s) => s.ui)
-  const [messages, setMessages] = useState([
-    {
-      role: 'bot',
-      text: 'Bonjour ! ðŸ‘‹ Je suis votre assistant EShop. Comment puis-je vous aider ?',
-      chips: ['Livraison', 'Retours', 'Promotions', 'Contact'],
-    },
-  ])
+
+  const makeWelcome = () => ({
+    role: 'bot',
+    text: t('chatbot.welcome'),
+    chips: t('chatbot.chips', { returnObjects: true }),
+  })
+
+  const [messages, setMessages] = useState(() => [makeWelcome()])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const endRef = useRef(null)
@@ -30,6 +33,10 @@ export default function Chatbot() {
     if (chatbotOpen) setTimeout(() => inputRef.current?.focus(), 300)
   }, [chatbotOpen])
 
+  useEffect(() => {
+    setMessages([makeWelcome()])
+  }, [i18n.language])
+
   const sendMessage = async (text = input) => {
     const userMsg = typeof text === 'string' ? text.trim() : input.trim()
     if (!userMsg || loading) return
@@ -40,7 +47,7 @@ export default function Chatbot() {
       const { data } = await api.post('/chatbot', { message: userMsg })
       setMessages((m) => [...m, { role: 'bot', text: data.message, chips: data.chips, products: data.products }])
     } catch {
-      setMessages((m) => [...m, { role: 'bot', text: 'Desole, une erreur est survenue. Reessayez.' }])
+      setMessages((m) => [...m, { role: 'bot', text: t('chatbot.error') }])
     } finally {
       setLoading(false)
     }
@@ -111,7 +118,7 @@ export default function Chatbot() {
             <p style={{ fontWeight: 700, color: '#fff', fontSize: '0.9375rem', lineHeight: 1.2, marginBottom: 3 }}>Assistant EShop</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 7, height: 7, background: '#4ade80', borderRadius: '50%' }} />
-              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem' }}>Toujours disponible</p>
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem' }}>{t('chatbot.alwaysAvailable')}</p>
             </div>
           </div>
         </div>
@@ -242,7 +249,7 @@ export default function Chatbot() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-            placeholder="Write your message..."
+            placeholder={t('chatbot.placeholder')}
             style={{
               flex: 1, height: 42,
               padding: '0 14px',

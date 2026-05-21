@@ -45,16 +45,16 @@ export default function SellerProducts() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4" style={{ paddingBottom: 8 }}>
         <div className="flex items-center gap-3">
-          <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
-          <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>My Products</h1>
+          <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>My Products</h1>
         </div>
-        <Link to="/seller/products/new" className="btn-primary text-xs flex items-center gap-1.5 py-1.5">
-          <Plus size={13} /> New Product
+        <Link to="/seller/products/new" className="btn-primary flex items-center gap-2" style={{ fontSize: '0.875rem', padding: '10px 20px' }}>
+          <Plus size={15} /> New Product
         </Link>
       </div>
 
@@ -122,7 +122,7 @@ export default function SellerProducts() {
                     <td style={{ padding: '12px 16px' }}>
                       <div className="flex items-center gap-1">
                         <Link to={`/seller/products/${p.id}/edit`}
-                          style={{ padding: 6, borderRadius: 7, color: '#0066CC', display: 'flex', background: 'transparent' }}
+                          style={{ padding: 6, borderRadius: 7, color: 'var(--primary)', display: 'flex', background: 'transparent' }}
                           onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-accent)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         ><Edit size={13} /></Link>
@@ -146,7 +146,9 @@ export default function SellerProducts() {
           </div>
         </div>
       )}
-      <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+        <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      </div>
     </div>
   )
 }

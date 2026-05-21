@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Eye, EyeOff, User, Briefcase } from 'lucide-react'
+import { Eye, EyeOff, User, Briefcase, Sun, Moon, Palette } from 'lucide-react'
 import { registerUser, clearError } from '../store/authSlice'
 import { fetchCart } from '../store/cartSlice'
+import { toggleTheme, togglePalette } from '../store/themeSlice'
 import toast from 'react-hot-toast'
 
 function getStrength(pw) {
@@ -19,14 +20,36 @@ function getStrength(pw) {
 const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong']
 const STRENGTH_COLORS = ['', '#ef4444', '#f59e0b', '#3b82f6', '#22c55e']
 
+const PALETTES = [
+  { value: 'blue', label: 'Blue & Cyan', colors: [
+    { name: 'Navy', hex: '#09111f' }, { name: 'Blue', hex: '#0066CC' },
+    { name: 'Cyan', hex: '#4da6ff' }, { name: 'Sky', hex: '#8ab0d0' },
+    { name: 'Ice', hex: '#e8f4fd' },
+  ]},
+  { value: 'neutral', label: 'Black & White', colors: [
+    { name: 'Black', hex: '#09090b' }, { name: 'Charcoal', hex: '#27272a' },
+    { name: 'Slate', hex: '#52525b' }, { name: 'Silver', hex: '#a1a1aa' },
+    { name: 'White', hex: '#fafafa' },
+  ]},
+]
+
 export default function RegisterPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isLoading, error } = useSelector((s) => s.auth)
+  const { mode, palette } = useSelector((s) => s.theme)
   const [form, setForm] = useState({ name: '', email: '', phone: '', role: 'client', password: '', password_confirmation: '' })
   const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [touched, setTouched] = useState({})
+  const [paletteMenuOpen, setPaletteMenuOpen] = useState(false)
+  const paletteMenuRef = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => { if (paletteMenuRef.current && !paletteMenuRef.current.contains(e.target)) setPaletteMenuOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const strength = getStrength(form.password)
 
@@ -58,7 +81,7 @@ export default function RegisterPage() {
 
   const labelStyle = { display: 'block', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-1)', marginBottom: 6 }
   const inputBase = { width: '100%', height: 44, padding: '0 14px', borderRadius: 10, border: '1.5px solid var(--border)', background: 'var(--bg-input)', color: 'var(--text-1)', fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.15s, box-shadow 0.15s' }
-  const onFocus = (e) => { e.target.style.borderColor = '#0066CC'; e.target.style.boxShadow = '0 0 0 3px rgba(0,102,204,0.13)'; e.target.style.background = 'var(--bg-card)' }
+  const onFocus = (e) => { e.target.style.borderColor = 'var(--primary)'; e.target.style.boxShadow = '0 0 0 3px var(--primary-ring)'; e.target.style.background = 'var(--bg-card)' }
   const onBlur = (e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; e.target.style.background = 'var(--bg-input)' }
   const eyeBtn = (show, toggle) => (
     <button type="button" onClick={toggle} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', display: 'flex', alignItems: 'center', padding: 0 }}>
@@ -68,11 +91,58 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page" style={{ padding: '1rem' }}>
+
+      {/* Theme controls */}
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button
+          onClick={() => dispatch(toggleTheme())}
+          title={mode === 'dark' ? 'Light mode' : 'Dark mode'}
+          style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid var(--border-light)', background: 'var(--bg-card)', color: 'var(--text-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+        >
+          {mode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+        <div ref={paletteMenuRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setPaletteMenuOpen(!paletteMenuOpen)}
+            title="Theme"
+            style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid var(--border-light)', background: 'var(--bg-card)', color: 'var(--text-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+          >
+            <Palette size={16} />
+          </button>
+          {paletteMenuOpen && (
+            <div style={{ position: 'absolute', top: 44, right: 0, width: 220, zIndex: 60, background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+              {PALETTES.map(({ value, label, colors }) => {
+                const active = palette === value
+                return (
+                  <button
+                    key={value}
+                    onClick={() => { if (palette !== value) dispatch(togglePalette()); setPaletteMenuOpen(false) }}
+                    style={{ width: '100%', padding: '12px 14px', background: active ? 'var(--bg-accent)' : 'none', border: 'none', borderBottom: value === 'blue' ? '1px solid var(--border-light)' : 'none', cursor: 'pointer', textAlign: 'left' }}
+                  >
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: active ? 'var(--primary)' : 'var(--text-1)', marginBottom: 6 }}>
+                      {active && '✓ '}{label}
+                    </p>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {colors.map(({ name, hex }) => (
+                        <div key={name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                          <div style={{ width: 18, height: 18, borderRadius: 4, background: hex, border: '1px solid rgba(0,0,0,0.1)' }} />
+                          <span style={{ fontSize: '0.6rem', color: 'var(--text-3)' }}>{name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div style={{ width: '100%', maxWidth: 440, background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 16, padding: '28px 36px 24px', boxShadow: 'var(--shadow-card)', animation: 'authFadeIn 0.45s cubic-bezier(0.22,1,0.36,1) both' }}>
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-          <div style={{ width: 32, height: 32, background: '#0066CC', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, background: 'var(--primary-btn)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', lineHeight: 1 }}>E</span>
           </div>
           <Link to="/" style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-1)', textDecoration: 'none' }}>Ecommerce</Link>
@@ -97,12 +167,12 @@ export default function RegisterPage() {
             ].map(({ value, icon: Icon, label, desc }) => {
               const active = form.role === value
               return (
-                <button key={value} type="button" onClick={() => setForm({ ...form, role: value })} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: active ? '2px solid #0066CC' : '1.5px solid var(--border-light)', borderRadius: 10, background: active ? 'var(--bg-accent)' : 'var(--bg-page)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.13s' }}>
-                  <div style={{ width: 26, height: 26, borderRadius: 7, flexShrink: 0, background: active ? '#0066CC' : 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: active ? '#fff' : 'var(--text-3)' }}>
+                <button key={value} type="button" onClick={() => setForm({ ...form, role: value })} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: active ? '2px solid var(--primary)' : '1.5px solid var(--border-light)', borderRadius: 10, background: active ? 'var(--bg-accent)' : 'var(--bg-page)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.13s' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 7, flexShrink: 0, background: active ? 'var(--primary-btn)' : 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: active ? '#fff' : 'var(--text-3)' }}>
                     <Icon size={13} />
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: active ? '#0066CC' : 'var(--text-1)', lineHeight: 1.2 }}>{label}</p>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: active ? 'var(--primary)' : 'var(--text-1)', lineHeight: 1.2 }}>{label}</p>
                     <p style={{ fontSize: '0.72rem', color: 'var(--text-3)', marginTop: 1 }}>{desc}</p>
                   </div>
                 </button>

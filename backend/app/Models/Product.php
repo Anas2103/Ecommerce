@@ -17,6 +17,8 @@ class Product extends Model
         'weight', 'attributes', 'views',
     ];
 
+    protected $appends = ['final_price', 'primary_image_url', 'average_rating', 'in_stock'];
+
     protected function casts(): array
     {
         return [

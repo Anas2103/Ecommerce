@@ -41,6 +41,13 @@ export default {
     reviews: { title: 'Avis clients', write: 'Écrire un avis', rating: 'Note', comment: 'Commentaire', titleField: 'Titre', submit: 'Publier', noReviews: 'Aucun avis pour ce produit', avgRating: 'Note moyenne', verified: 'Achat vérifié' },
     admin: { dashboard: 'Tableau de bord', revenue: "Chiffre d'affaires", orders: 'Commandes', users: 'Utilisateurs', products: 'Produits', categories: 'Catégories', reviews: 'Avis', analytics: 'Analytiques', thisMonth: 'Ce mois', today: "Aujourd'hui", pending: 'En attente', outOfStock: 'Rupture', sellers: 'Vendeurs', newUsers: 'Nouveaux', totalRevenue: 'CA Total', topProducts: 'Top Produits', recentOrders: 'Commandes récentes' },
     profile: { title: 'Mon profil', editProfile: 'Modifier le profil', changePassword: 'Changer le mot de passe', addresses: 'Mes adresses', addAddress: 'Ajouter une adresse', language: 'Langue', french: 'Français', english: 'Anglais', arabic: 'Arabe', setDefault: 'Définir par défaut', default: 'Par défaut' },
+    chatbot: {
+      welcome: "Bonjour ! 👋 Je suis votre assistant EShop. Comment puis-je vous aider ?",
+      alwaysAvailable: 'Toujours disponible',
+      placeholder: 'Écrivez votre message...',
+      error: 'Désolé, une erreur est survenue. Réessayez.',
+      chips: ['Livraison', 'Retours', 'Facture', 'Promotions', 'Garantie', 'Contact'],
+    },
     home: {
       welcome: 'Bienvenue sur Ecommerce Maroc',
       heroTitle: 'Tout ce dont vous avez besoin, livré rapidement au Maroc.',

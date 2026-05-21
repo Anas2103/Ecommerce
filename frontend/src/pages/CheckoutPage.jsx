@@ -108,18 +108,18 @@ function CheckoutPage() {
   const stepIcons = [MapPin, Truck, CreditCard]
   const stepLabels = [t('checkout.address'), t('checkout.shipping'), t('checkout.payment')]
 
-  const labelStyle = { fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: 6, display: 'block' }
-  const sectionCard = { background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '24px' }
+  const labelStyle = { fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: 7, display: 'block' }
+  const sectionCard = { background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 14, padding: '28px 32px' }
 
   return (
     <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
-      <section style={{ padding: '8px 16px 32px', boxSizing: 'border-box' }}>
+      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px 56px' }}>
 
         {/* Header */}
-        <div style={{ ...sectionCard, marginBottom: 20 }}>
-          <div className="flex items-center gap-3 mb-6">
-            <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
-            <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>{t('checkout.title')}</h1>
+        <div style={{ ...sectionCard, marginBottom: 28 }}>
+          <div className="flex items-center gap-3" style={{ marginBottom: 28 }}>
+            <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+            <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>{t('checkout.title')}</h1>
           </div>
 
           {/* Step indicator */}
@@ -130,21 +130,21 @@ function CheckoutPage() {
               const active = i === step
               return (
                 <div key={s} className="flex items-center flex-1">
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-3">
                     <div style={{
-                      width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      background: done ? '#0066CC' : active ? 'var(--bg-accent)' : 'var(--bg-page)',
-                      border: done ? 'none' : active ? '2px solid #0066CC' : '1.5px solid var(--border)',
-                      color: done ? '#fff' : active ? '#0066CC' : 'var(--text-3)',
+                      width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      background: done ? 'var(--primary-btn)' : active ? 'var(--bg-accent)' : 'var(--bg-page)',
+                      border: done ? 'none' : active ? '2px solid var(--primary)' : '1.5px solid var(--border)',
+                      color: done ? '#fff' : active ? 'var(--primary)' : 'var(--text-3)',
                     }}>
-                      {done ? <CheckCircle size={17} /> : <Icon size={15} />}
+                      {done ? <CheckCircle size={18} /> : <Icon size={16} />}
                     </div>
-                    <span className="hidden sm:block" style={{ fontSize: '0.82rem', fontWeight: active || done ? 700 : 400, color: active || done ? 'var(--text-1)' : 'var(--text-3)' }}>
+                    <span className="hidden sm:block" style={{ fontSize: '0.875rem', fontWeight: active || done ? 700 : 400, color: active || done ? 'var(--text-1)' : 'var(--text-3)' }}>
                       {stepLabels[i]}
                     </span>
                   </div>
                   {i < steps.length - 1 && (
-                    <div className="flex-1 mx-3" style={{ height: 2, borderRadius: 9999, background: done ? '#0066CC' : 'var(--border-light)' }} />
+                    <div className="flex-1 mx-4" style={{ height: 2, borderRadius: 9999, background: done ? 'var(--primary)' : 'var(--border-light)' }} />
                   )}
                 </div>
               )
@@ -152,38 +152,38 @@ function CheckoutPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2 space-y-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
             {/* Step 1: Address */}
             {step === 0 && (
               <div style={sectionCard}>
-                <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 16 }}>{t('checkout.address')}</h2>
-                <div className="space-y-3">
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.address')}</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {addresses.map((addr) => (
                     <label
                       key={addr.id}
-                      className="flex items-start gap-3 cursor-pointer transition-all"
+                      className="flex items-start gap-4 cursor-pointer transition-all"
                       style={{
-                        padding: '14px 16px', borderRadius: 10,
-                        border: selectedAddress?.id === addr.id ? '2px solid #0066CC' : '1.5px solid var(--border-light)',
+                        padding: '16px 18px', borderRadius: 12,
+                        border: selectedAddress?.id === addr.id ? '2px solid var(--primary)' : '1.5px solid var(--border-light)',
                         background: selectedAddress?.id === addr.id ? 'var(--bg-accent)' : 'var(--bg-page)',
                       }}
                     >
-                      <input type="radio" checked={selectedAddress?.id === addr.id} onChange={() => setSelectedAddress(addr)} style={{ marginTop: 3, accentColor: '#0066CC' }} />
+                      <input type="radio" checked={selectedAddress?.id === addr.id} onChange={() => setSelectedAddress(addr)} style={{ marginTop: 4, accentColor: 'var(--primary)' }} />
                       <div>
-                        <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-1)' }}>{addr.full_name}</p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-2)', marginTop: 2 }}>{addr.address_line1}{addr.address_line2 && `, ${addr.address_line2}`}</p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-2)' }}>{addr.city}{addr.postal_code && `, ${addr.postal_code}`} · {addr.country}</p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-2)' }}>Tel: {addr.phone}</p>
-                        {addr.is_default && <span style={{ display: 'inline-block', marginTop: 4, fontSize: '0.68rem', fontWeight: 700, padding: '1px 8px', borderRadius: 9999, background: 'var(--bg-accent)', color: '#0066CC', border: '1px solid var(--border-accent)' }}>{t('profile.default')}</span>}
+                        <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-1)' }}>{addr.full_name}</p>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-2)', marginTop: 3 }}>{addr.address_line1}{addr.address_line2 && `, ${addr.address_line2}`}</p>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-2)' }}>{addr.city}{addr.postal_code && `, ${addr.postal_code}`} · {addr.country}</p>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-2)' }}>Tel: {addr.phone}</p>
+                        {addr.is_default && <span style={{ display: 'inline-block', marginTop: 6, fontSize: '0.7rem', fontWeight: 700, padding: '2px 10px', borderRadius: 9999, background: 'var(--bg-accent)', color: 'var(--primary)', border: '1px solid var(--border-accent)' }}>{t('profile.default')}</span>}
                       </div>
                     </label>
                   ))}
 
                   {showAddressForm ? (
-                    <div style={{ padding: '16px', borderRadius: 10, border: '1.5px solid var(--border-accent)', background: 'var(--bg-page)' }}>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div style={{ padding: '20px', borderRadius: 12, border: '1.5px solid var(--border-accent)', background: 'var(--bg-page)' }}>
+                      <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 16 }}>
                         <div>
                           <label style={labelStyle}>Full name</label>
                           <input value={newAddress.full_name} onChange={(e) => setNewAddress({ ...newAddress, full_name: e.target.value })} className="input text-sm" />
@@ -193,11 +193,11 @@ function CheckoutPage() {
                           <input value={newAddress.phone} onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })} className="input text-sm" />
                         </div>
                       </div>
-                      <div className="mb-3">
+                      <div style={{ marginBottom: 16 }}>
                         <label style={labelStyle}>Address</label>
                         <input value={newAddress.address_line1} onChange={(e) => setNewAddress({ ...newAddress, address_line1: e.target.value })} className="input text-sm" />
                       </div>
-                      <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 20 }}>
                         <div>
                           <label style={labelStyle}>City</label>
                           <input value={newAddress.city} onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })} className="input text-sm" />
@@ -207,7 +207,7 @@ function CheckoutPage() {
                           <input value={newAddress.country} onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })} className="input text-sm" />
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <button onClick={addAddress} className="btn-primary text-sm">Save</button>
                         <button onClick={() => setShowAddressForm(false)} className="btn-secondary text-sm">{t('common.cancel')}</button>
                       </div>
@@ -216,15 +216,15 @@ function CheckoutPage() {
                     <button
                       onClick={() => setShowAddressForm(true)}
                       className="flex items-center gap-2 w-full transition-all"
-                      style={{ padding: '13px 16px', borderRadius: 10, border: '1.5px dashed var(--border)', background: 'transparent', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 500, color: 'var(--text-3)' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0066CC'; e.currentTarget.style.color = '#0066CC' }}
+                      style={{ padding: '15px 18px', borderRadius: 12, border: '1.5px dashed var(--border)', background: 'transparent', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-3)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' }}
                       onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-3)' }}
                     >
-                      <Plus size={15} /> {t('checkout.addAddress')}
+                      <Plus size={16} /> {t('checkout.addAddress')}
                     </button>
                   )}
                 </div>
-                <button onClick={() => setStep(1)} disabled={!selectedAddress} className="btn-primary mt-5 w-full justify-center">
+                <button onClick={() => setStep(1)} disabled={!selectedAddress} className="btn-primary w-full justify-center" style={{ marginTop: 24, padding: '13px' }}>
                   {t('common.next')} →
                 </button>
               </div>
@@ -233,35 +233,35 @@ function CheckoutPage() {
             {/* Step 2: Shipping */}
             {step === 1 && (
               <div style={sectionCard}>
-                <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 16 }}>{t('checkout.shipping')}</h2>
-                <div className="space-y-3">
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.shipping')}</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {shippingMethods.map((method) => (
                     <label
                       key={method.id}
-                      className="flex items-center gap-3 cursor-pointer transition-all"
+                      className="flex items-center gap-4 cursor-pointer transition-all"
                       style={{
-                        padding: '14px 16px', borderRadius: 10,
-                        border: selectedShipping?.id === method.id ? '2px solid #0066CC' : '1.5px solid var(--border-light)',
+                        padding: '16px 18px', borderRadius: 12,
+                        border: selectedShipping?.id === method.id ? '2px solid var(--primary)' : '1.5px solid var(--border-light)',
                         background: selectedShipping?.id === method.id ? 'var(--bg-accent)' : 'var(--bg-page)',
                       }}
                     >
-                      <input type="radio" checked={selectedShipping?.id === method.id} onChange={() => setSelectedShipping(method)} style={{ accentColor: '#0066CC' }} />
-                      <div style={{ width: 36, height: 36, background: 'var(--bg-accent)', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Truck size={17} style={{ color: '#0066CC' }} />
+                      <input type="radio" checked={selectedShipping?.id === method.id} onChange={() => setSelectedShipping(method)} style={{ accentColor: 'var(--primary)' }} />
+                      <div style={{ width: 40, height: 40, background: 'var(--bg-accent)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Truck size={18} style={{ color: 'var(--primary)' }} />
                       </div>
                       <div className="flex-1">
-                        <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-1)' }}>{method.name_en || method.name_fr || method.name}</p>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 1 }}>{method.estimated_days_min}–{method.estimated_days_max} business days</p>
+                        <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-1)' }}>{method.name_en || method.name_fr || method.name}</p>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-3)', marginTop: 3 }}>{method.estimated_days_min}–{method.estimated_days_max} business days</p>
                       </div>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: Number(method.price) === 0 ? '#16a34a' : 'var(--text-1)', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: Number(method.price) === 0 ? '#16a34a' : 'var(--text-1)', flexShrink: 0 }}>
                         {Number(method.price) === 0 ? 'Free' : `${Number(method.price).toLocaleString()} MAD`}
                       </span>
                     </label>
                   ))}
                 </div>
-                <div className="flex gap-3 mt-5">
-                  <button onClick={() => setStep(0)} className="btn-secondary flex-1 justify-center">{t('common.back')}</button>
-                  <button onClick={() => setStep(2)} disabled={!selectedShipping} className="btn-primary flex-1 justify-center">{t('common.next')} →</button>
+                <div className="flex gap-4" style={{ marginTop: 24 }}>
+                  <button onClick={() => setStep(0)} className="btn-secondary flex-1 justify-center" style={{ padding: '13px' }}>{t('common.back')}</button>
+                  <button onClick={() => setStep(2)} disabled={!selectedShipping} className="btn-primary flex-1 justify-center" style={{ padding: '13px' }}>{t('common.next')} →</button>
                 </div>
               </div>
             )}
@@ -269,15 +269,13 @@ function CheckoutPage() {
             {/* Step 3: Payment */}
             {step === 2 && (
               <div style={sectionCard}>
-                <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 16 }}>{t('checkout.payment')}</h2>
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.payment')}</h2>
 
                 {/* Payment method selector */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
                   {[
                     {
-                      id: 'card',
-                      label: 'Credit Card',
-                      desc: 'Visa, Mastercard',
+                      id: 'card', label: 'Credit Card', desc: 'Visa, Mastercard',
                       icon: (
                         <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
                           <rect width="22" height="16" rx="3" fill="#1a56db"/>
@@ -288,9 +286,7 @@ function CheckoutPage() {
                       ),
                     },
                     {
-                      id: 'paypal',
-                      label: 'PayPal',
-                      desc: 'Pay with PayPal',
+                      id: 'paypal', label: 'PayPal', desc: 'Pay with PayPal',
                       icon: (
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                           <path d="M7.5 3h7c2.8 0 4.5 1.5 4 4.2-.6 3-2.8 4.8-5.6 4.8H11l-1 5H7.2L9 3z" fill="#009cde"/>
@@ -306,18 +302,18 @@ function CheckoutPage() {
                         type="button"
                         onClick={() => setPaymentMethod(id)}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', cursor: 'pointer',
-                          border: active ? '2px solid #0066CC' : '1.5px solid var(--border-light)',
-                          borderRadius: 10, background: active ? 'var(--bg-accent)' : 'var(--bg-page)',
+                          display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px', cursor: 'pointer',
+                          border: active ? '2px solid var(--primary)' : '1.5px solid var(--border-light)',
+                          borderRadius: 12, background: active ? 'var(--bg-accent)' : 'var(--bg-page)',
                           transition: 'all 0.13s', textAlign: 'left',
                         }}
                       >
-                        <div style={{ width: 36, height: 36, borderRadius: 8, background: active ? '#0066CC' : 'var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.13s' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 10, background: active ? 'var(--primary-btn)' : 'var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {icon}
                         </div>
                         <div>
-                          <p style={{ fontSize: '0.82rem', fontWeight: 700, color: active ? '#0066CC' : 'var(--text-1)', lineHeight: 1.2 }}>{label}</p>
-                          <p style={{ fontSize: '0.72rem', color: 'var(--text-3)', marginTop: 2 }}>{desc}</p>
+                          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: active ? 'var(--primary)' : 'var(--text-1)', lineHeight: 1.2 }}>{label}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: 3 }}>{desc}</p>
                         </div>
                       </button>
                     )
@@ -326,8 +322,8 @@ function CheckoutPage() {
 
                 {/* Card form */}
                 {paymentMethod === 'card' && (
-                  <div className="space-y-4">
-                    <div style={{ padding: '10px 14px', borderRadius: 9, background: '#fefce8', border: '1px solid #fde68a', color: '#b45309', fontSize: '0.78rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                    <div style={{ padding: '12px 16px', borderRadius: 10, background: '#fefce8', border: '1px solid #fde68a', color: '#b45309', fontSize: '0.82rem' }}>
                       ⚠️ Simulated payment — no real transaction will be processed
                     </div>
                     {[
@@ -336,13 +332,7 @@ function CheckoutPage() {
                     ].map(({ label, key, type, maxLength, mono }) => (
                       <div key={key}>
                         <label style={labelStyle}>{label}</label>
-                        <input
-                          type={type}
-                          value={card[key]}
-                          onChange={(e) => setCard({ ...card, [key]: e.target.value })}
-                          className={`input${mono ? ' font-mono' : ''}`}
-                          maxLength={maxLength}
-                        />
+                        <input type={type} value={card[key]} onChange={(e) => setCard({ ...card, [key]: e.target.value })} className={`input${mono ? ' font-mono' : ''}`} maxLength={maxLength} />
                       </div>
                     ))}
                     <div className="grid grid-cols-2 gap-4">
@@ -364,34 +354,26 @@ function CheckoutPage() {
 
                 {/* PayPal section */}
                 {paymentMethod === 'paypal' && (
-                  <div className="space-y-4">
-                    <div style={{ padding: '10px 14px', borderRadius: 9, background: 'var(--bg-accent)', border: '1px solid var(--border-accent)', color: 'var(--text-2)', fontSize: '0.78rem', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                    <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--bg-accent)', border: '1px solid var(--border-accent)', color: 'var(--text-2)', fontSize: '0.82rem', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                       <span style={{ flexShrink: 0 }}>ℹ️</span>
                       <span>
-                        You'll be redirected to PayPal to complete the payment.
-                        Amount charged: <strong style={{ color: 'var(--text-1)' }}>${(total / MAD_TO_USD).toFixed(2)} USD</strong>
-                        {' '}(≈ {total.toLocaleString()} MAD)
+                        You will be redirected to PayPal to complete the payment.
+                        Amount: <strong style={{ color: 'var(--text-1)' }}>${(total / MAD_TO_USD).toFixed(2)} USD</strong> (≈ {total.toLocaleString()} MAD)
                       </span>
                     </div>
                     <div>
                       <label style={labelStyle}>Promo code (optional)</label>
                       <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="WELCOME10" className="input" />
                     </div>
-                    <div style={{ marginTop: 4 }}>
-                      <PayPalButtonsWrapper total={total} onSuccess={(txId) => placeOrder(txId)} />
-                    </div>
+                    <PayPalButtonsWrapper total={total} onSuccess={(txId) => placeOrder(txId)} />
                   </div>
                 )}
 
-                <div className="flex gap-3 mt-5">
-                  <button onClick={() => setStep(1)} className="btn-secondary flex-1 justify-center">{t('common.back')}</button>
+                <div className="flex gap-4" style={{ marginTop: 24 }}>
+                  <button onClick={() => setStep(1)} className="btn-secondary flex-1 justify-center" style={{ padding: '13px' }}>{t('common.back')}</button>
                   {paymentMethod === 'card' && (
-                    <button
-                      onClick={() => placeOrder()}
-                      disabled={placingOrder}
-                      className="btn-primary flex-1 justify-center"
-                      style={{ padding: '11px 16px', gap: 8 }}
-                    >
+                    <button onClick={() => placeOrder()} disabled={placingOrder} className="btn-primary flex-1 justify-center" style={{ padding: '13px', gap: 8 }}>
                       <CreditCard size={16} />
                       {placingOrder ? t('checkout.processing') : `${t('checkout.placeOrder')} · ${total.toLocaleString()} MAD`}
                     </button>
@@ -403,36 +385,36 @@ function CheckoutPage() {
 
           {/* Order summary */}
           <div style={{ ...sectionCard, height: 'fit-content', position: 'sticky', top: 90 }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 16 }}>{t('checkout.summary')}</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.summary')}</h3>
 
-            <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 16 }} className="space-y-3">
+            <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 items-center">
-                  <img src={item.product?.primary_image_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: 'var(--bg-page)' }} onError={(e) => e.target.src = '/placeholder.jpg'} />
+                  <img src={item.product?.primary_image_url} alt="" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', flexShrink: 0, background: 'var(--bg-page)' }} onError={(e) => e.target.src = '/placeholder.jpg'} />
                   <div className="flex-1 min-w-0">
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-1)', fontWeight: 500 }} className="truncate">{item.product?.name}</p>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-3)' }}>×{item.quantity}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-1)', fontWeight: 500 }} className="truncate">{item.product?.name}</p>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-3)', marginTop: 2 }}>×{item.quantity}</p>
                   </div>
-                  <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-1)', flexShrink: 0 }}>{(item.price * item.quantity).toLocaleString()} MAD</p>
+                  <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-1)', flexShrink: 0 }}>{(item.price * item.quantity).toLocaleString()} MAD</p>
                 </div>
               ))}
             </div>
 
-            <div style={{ borderTop: '1.5px solid var(--border-light)', paddingTop: 14 }} className="space-y-2">
+            <div style={{ borderTop: '1.5px solid var(--border-light)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
                 { label: t('cart.subtotal'), value: `${subtotal.toLocaleString()} MAD` },
                 discount > 0 ? { label: 'Discount', value: `-${discount.toLocaleString()} MAD`, green: true } : null,
                 { label: t('cart.shipping'), value: Number(shippingCost) === 0 ? 'Free' : `${shippingCost} MAD`, green: Number(shippingCost) === 0 },
                 { label: t('cart.tax'), value: `${tax.toLocaleString()} MAD` },
               ].filter(Boolean).map((row) => (
-                <div key={row.label} className="flex justify-between" style={{ fontSize: '0.82rem' }}>
+                <div key={row.label} className="flex justify-between" style={{ fontSize: '0.85rem' }}>
                   <span style={{ color: 'var(--text-3)' }}>{row.label}</span>
                   <span style={{ color: row.green ? '#16a34a' : 'var(--text-2)', fontWeight: 500 }}>{row.value}</span>
                 </div>
               ))}
-              <div className="flex justify-between" style={{ borderTop: '1.5px solid var(--border-light)', paddingTop: 10, marginTop: 4 }}>
-                <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-1)' }}>{t('cart.total')}</span>
-                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0066CC' }}>{total.toLocaleString()} MAD</span>
+              <div className="flex justify-between" style={{ borderTop: '1.5px solid var(--border-light)', paddingTop: 14, marginTop: 4 }}>
+                <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-1)' }}>{t('cart.total')}</span>
+                <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>{total.toLocaleString()} MAD</span>
               </div>
             </div>
           </div>

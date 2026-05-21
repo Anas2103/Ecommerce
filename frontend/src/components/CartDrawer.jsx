@@ -48,10 +48,10 @@ export default function CartDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between" style={{ padding: '14px 18px', borderBottom: '1.5px solid var(--border-light)' }}>
           <div className="flex items-center gap-2.5">
-            <ShoppingCart size={16} style={{ color: '#0066CC' }} />
+            <ShoppingCart size={16} style={{ color: 'var(--primary)' }} />
             <h2 style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-1)' }}>{t('cart.title')}</h2>
             {itemCount > 0 && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, background: '#0066CC', color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: '50%' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, background: 'var(--primary-btn)', color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: '50%' }}>
                 {itemCount}
               </span>
             )}
@@ -71,7 +71,7 @@ export default function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center pb-8">
               <div style={{ width: 60, height: 60, background: 'var(--bg-accent)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-                <ShoppingCart size={26} style={{ color: '#0066CC' }} />
+                <ShoppingCart size={26} style={{ color: 'var(--primary)' }} />
               </div>
               <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-1)', marginBottom: 4 }}>{t('cart.empty')}</p>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginBottom: 18 }}>Add products to get started</p>
@@ -91,12 +91,12 @@ export default function CartDrawer() {
                     to={`/products/${item.product?.slug}`}
                     onClick={close}
                     style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-1)', textDecoration: 'none', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
                     onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-1)'}
                   >
                     {item.product?.name}
                   </Link>
-                  <p style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0066CC', marginTop: 3 }}>
+                  <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary)', marginTop: 3 }}>
                     {(item.price * item.quantity).toLocaleString()} MAD
                   </p>
                   <div className="flex items-center gap-2 mt-2">
@@ -104,7 +104,7 @@ export default function CartDrawer() {
                       <button
                         onClick={() => handleUpdate(item, item.quantity - 1)}
                         style={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', borderRadius: '5px 0 0 5px' }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
                         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-3)'}
                       >
                         <Minus size={9} />
@@ -113,7 +113,7 @@ export default function CartDrawer() {
                       <button
                         onClick={() => handleUpdate(item, item.quantity + 1)}
                         style={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', borderRadius: '0 5px 5px 0' }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
                         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-3)'}
                       >
                         <Plus size={9} />
@@ -136,15 +136,15 @@ export default function CartDrawer() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div style={{ padding: '14px 16px', borderTop: '1.5px solid var(--border-light)', background: 'var(--bg-card)' }} className="space-y-3">
-            <div className="flex justify-between items-center">
+          <div style={{ padding: '20px 20px', borderTop: '1.5px solid var(--border-light)', background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex justify-between items-center" style={{ marginBottom: 4 }}>
               <span style={{ fontSize: '0.82rem', color: 'var(--text-3)' }}>{t('cart.subtotal')}</span>
               <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-1)' }}>{subtotal?.toLocaleString()} MAD</span>
             </div>
-            <Link to="/checkout" onClick={close} className="btn-primary w-full justify-center text-sm" style={{ gap: 8 }}>
+            <Link to="/checkout" onClick={close} className="btn-primary w-full justify-center text-sm" style={{ gap: 8, padding: '12px' }}>
               {t('cart.checkout')} <ArrowRight size={14} />
             </Link>
-            <Link to="/cart" onClick={close} className="btn-secondary w-full justify-center text-xs">
+            <Link to="/cart" onClick={close} className="btn-secondary w-full justify-center text-xs" style={{ padding: '10px' }}>
               View full cart
             </Link>
           </div>

@@ -1,9 +1,10 @@
-﻿import { useState } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Sun, Moon, Palette } from 'lucide-react'
 import { loginUser, clearError } from '../store/authSlice'
 import { fetchCart } from '../store/cartSlice'
+import { toggleTheme, togglePalette } from '../store/themeSlice'
 import toast from 'react-hot-toast'
 
 const DEMO = [
@@ -12,14 +13,36 @@ const DEMO = [
   { role: 'Client',  email: 'client@ecommerce.com' },
 ]
 
+const PALETTES = [
+  { value: 'blue', label: 'Blue & Cyan', colors: [
+    { name: 'Navy', hex: '#09111f' }, { name: 'Blue', hex: '#0066CC' },
+    { name: 'Cyan', hex: '#4da6ff' }, { name: 'Sky', hex: '#8ab0d0' },
+    { name: 'Ice', hex: '#e8f4fd' },
+  ]},
+  { value: 'neutral', label: 'Black & White', colors: [
+    { name: 'Black', hex: '#09090b' }, { name: 'Charcoal', hex: '#27272a' },
+    { name: 'Slate', hex: '#52525b' }, { name: 'Silver', hex: '#a1a1aa' },
+    { name: 'White', hex: '#fafafa' },
+  ]},
+]
+
 export default function LoginPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
   const { isLoading, error } = useSelector((s) => s.auth)
+  const { mode, palette } = useSelector((s) => s.theme)
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPw, setShowPw] = useState(false)
+  const [paletteMenuOpen, setPaletteMenuOpen] = useState(false)
+  const paletteMenuRef = useRef(null)
   const from = location.state?.from?.pathname || '/'
+
+  useEffect(() => {
+    const handler = (e) => { if (paletteMenuRef.current && !paletteMenuRef.current.contains(e.target)) setPaletteMenuOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -34,11 +57,58 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
+
+      {/* Theme controls */}
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button
+          onClick={() => dispatch(toggleTheme())}
+          title={mode === 'dark' ? 'Light mode' : 'Dark mode'}
+          style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid var(--border-light)', background: 'var(--bg-card)', color: 'var(--text-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+        >
+          {mode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+        <div ref={paletteMenuRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setPaletteMenuOpen(!paletteMenuOpen)}
+            title="Theme"
+            style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid var(--border-light)', background: 'var(--bg-card)', color: 'var(--text-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+          >
+            <Palette size={16} />
+          </button>
+          {paletteMenuOpen && (
+            <div style={{ position: 'absolute', top: 44, right: 0, width: 220, zIndex: 60, background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+              {PALETTES.map(({ value, label, colors }) => {
+                const active = palette === value
+                return (
+                  <button
+                    key={value}
+                    onClick={() => { if (palette !== value) dispatch(togglePalette()); setPaletteMenuOpen(false) }}
+                    style={{ width: '100%', padding: '12px 14px', background: active ? 'var(--bg-accent)' : 'none', border: 'none', borderBottom: value === 'blue' ? '1px solid var(--border-light)' : 'none', cursor: 'pointer', textAlign: 'left' }}
+                  >
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: active ? 'var(--primary)' : 'var(--text-1)', marginBottom: 6 }}>
+                      {active && '✓ '}{label}
+                    </p>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {colors.map(({ name, hex }) => (
+                        <div key={name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                          <div style={{ width: 18, height: 18, borderRadius: 4, background: hex, border: '1px solid rgba(0,0,0,0.1)' }} />
+                          <span style={{ fontSize: '0.6rem', color: 'var(--text-3)' }}>{name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="auth-card">
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-          <div style={{ width: 36, height: 36, background: '#0066CC', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, background: 'var(--primary-btn)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1 }}>E</span>
           </div>
           <Link to="/" style={{ fontSize: '1.0625rem', fontWeight: 800, color: 'var(--text-1)', textDecoration: 'none' }}>
@@ -155,7 +225,7 @@ export default function LoginPage() {
                 <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-1)' }}>{role}</span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-3)', marginLeft: 8 }}>{email}</span>
               </div>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0066CC' }}>Use →</span>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--primary)' }}>Use →</span>
             </button>
           ))}
         </div>

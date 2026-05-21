@@ -50,14 +50,14 @@ export default function AdminCategories() {
   const labelStyle = { fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: 5, display: 'block' }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between" style={{ paddingBottom: 8 }}>
         <div className="flex items-center gap-3">
-          <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
-          <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>Categories</h1>
+          <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+          <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Categories</h1>
         </div>
-        <button onClick={openCreate} className="btn-primary text-xs flex items-center gap-1.5 py-1.5">
-          <Plus size={13} /> Add Category
+        <button onClick={openCreate} className="btn-primary flex items-center gap-2" style={{ fontSize: '0.875rem', padding: '10px 20px' }}>
+          <Plus size={15} /> Add Category
         </button>
       </div>
 
@@ -100,7 +100,7 @@ export default function AdminCategories() {
                     <td style={{ padding: '11px 16px' }}>
                       <div className="flex gap-1">
                         <button onClick={() => openEdit(cat)}
-                          style={{ padding: 6, borderRadius: 7, background: 'transparent', border: 'none', cursor: 'pointer', color: '#0066CC' }}
+                          style={{ padding: 6, borderRadius: 7, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--primary)' }}
                           onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-accent)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         ><Edit size={13} /></button>
@@ -132,7 +132,7 @@ export default function AdminCategories() {
           </div>
           <div><label style={labelStyle}>Description</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className="input text-sm resize-none" /></div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="is_active" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} style={{ accentColor: '#0066CC' }} />
+            <input type="checkbox" id="is_active" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} style={{ accentColor: 'var(--primary)' }} />
             <label htmlFor="is_active" style={{ fontSize: '0.82rem', color: 'var(--text-1)' }}>Active</label>
           </div>
           <div className="flex gap-2 pt-2">

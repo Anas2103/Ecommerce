@@ -38,15 +38,15 @@ export default function AdminUsers() {
   }
 
   const roleBadge = (role) => {
-    const map = { admin: { bg: '#fff1f2', color: '#ef4444', border: '#fecaca' }, seller: { bg: '#faf5ff', color: '#9333ea', border: '#e9d5ff' }, client: { bg: 'var(--bg-accent)', color: '#0066CC', border: 'var(--border-accent)' } }
+    const map = { admin: { bg: '#fff1f2', color: '#ef4444', border: '#fecaca' }, seller: { bg: '#faf5ff', color: '#9333ea', border: '#e9d5ff' }, client: { bg: 'var(--bg-accent)', color: 'var(--primary)', border: 'var(--border-accent)' } }
     return map[role] || map.client
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
-        <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>Users</h1>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3" style={{ paddingBottom: 8 }}>
+        <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+        <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Users</h1>
       </div>
 
       <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '14px 16px' }}>
@@ -82,7 +82,7 @@ export default function AdminUsers() {
                     >
                       <td style={{ padding: '12px 16px' }}>
                         <div className="flex items-center gap-3">
-                          <img src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=0066CC&color=fff`} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                          <img src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=0D6EFD&color=fff`} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                           <div>
                             <p style={{ fontWeight: 600, color: 'var(--text-1)' }}>{user.name}</p>
                             <p style={{ fontSize: '0.68rem', color: 'var(--text-3)' }}>{user.email}</p>
@@ -132,7 +132,9 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
-      <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+        <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      </div>
     </div>
   )
 }

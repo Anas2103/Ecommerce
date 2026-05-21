@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
 
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-          <div style={{ width: 36, height: 36, background: '#0066CC', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, background: 'var(--primary-btn)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1 }}>E</span>
           </div>
           <Link to="/" style={{ fontSize: '1.0625rem', fontWeight: 800, color: 'var(--text-1)', textDecoration: 'none' }}>
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 64, height: 64, background: 'var(--bg-accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-              <span style={{ fontSize: 28, color: '#0066CC' }}>✓</span>
+              <span style={{ fontSize: 28, color: 'var(--primary)' }}>✓</span>
             </div>
             <p style={{ color: 'var(--text-1)', marginBottom: 8, fontSize: '0.9rem' }}>
               An email was sent to <strong>{email}</strong>

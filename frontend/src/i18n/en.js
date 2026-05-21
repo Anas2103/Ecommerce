@@ -41,6 +41,13 @@ export default {
     reviews: { title: 'Customer Reviews', write: 'Write a Review', rating: 'Rating', comment: 'Comment', titleField: 'Title', submit: 'Submit', noReviews: 'No reviews yet', avgRating: 'Average rating', verified: 'Verified purchase' },
     admin: { dashboard: 'Dashboard', revenue: 'Revenue', orders: 'Orders', users: 'Users', products: 'Products', categories: 'Categories', reviews: 'Reviews', analytics: 'Analytics', thisMonth: 'This Month', today: 'Today', pending: 'Pending', outOfStock: 'Out of Stock', sellers: 'Sellers', newUsers: 'New Users', totalRevenue: 'Total Revenue', topProducts: 'Top Products', recentOrders: 'Recent Orders' },
     profile: { title: 'My Profile', editProfile: 'Edit Profile', changePassword: 'Change Password', addresses: 'My Addresses', addAddress: 'Add Address', language: 'Language', french: 'French', english: 'English', arabic: 'Arabic', setDefault: 'Set as default', default: 'Default' },
+    chatbot: {
+      welcome: "Hello! 👋 I'm your EShop assistant. How can I help you?",
+      alwaysAvailable: 'Always available',
+      placeholder: 'Write your message...',
+      error: 'Sorry, an error occurred. Please try again.',
+      chips: ['Shipping', 'Returns', 'Invoice', 'Promotions', 'Warranty', 'Contact'],
+    },
     home: {
       welcome: 'Welcome to Ecommerce Morocco',
       heroTitle: 'Everything you need, delivered fast across Morocco.',

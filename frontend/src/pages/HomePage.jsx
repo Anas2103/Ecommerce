@@ -119,7 +119,7 @@ export default function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section style={{ padding: '8px 16px 16px', boxSizing: 'border-box' }}>
         <div style={{
-          background: 'linear-gradient(135deg, #0066CC 0%, #0052A3 55%, #003d7a 100%)',
+          background: 'linear-gradient(135deg, var(--primary-btn) 0%, var(--primary-btn-hover) 100%)',
           borderRadius: '12px',
           overflow: 'hidden',
           boxSizing: 'border-box',
@@ -141,12 +141,12 @@ export default function HomePage() {
               <div className="flex items-center gap-2 flex-wrap justify-center lg:justify-start" style={{ marginTop: '1rem' }}>
                 <Link
                   to="/products"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold text-sm transition-all"
-                  style={{ background: '#fff', color: '#0066CC', borderRadius: 8, border: '1.5px solid rgba(255,255,255,0.6)', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f0f7ff'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                  className="inline-flex items-center justify-center gap-2 font-semibold transition-all"
+                  style={{ background: '#fff', color: 'var(--primary-btn)', borderRadius: 10, border: '1.5px solid rgba(255,255,255,0.6)', boxShadow: '0 2px 10px rgba(0,0,0,0.15)', padding: '12px 28px', fontSize: '0.95rem' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f0f0f0'; e.currentTarget.style.transform = 'translateY(-1px)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'none' }}
                 >
-                  {t('home.exploreBtn')} <ArrowRight size={12} />
+                  {t('home.exploreBtn')} <ArrowRight size={15} />
                 </Link>
                 {!user && (
                   <Link
@@ -166,7 +166,8 @@ export default function HomePage() {
             <div
               className="flex-shrink-0 w-full lg:w-56"
               style={{
-                background: '#fff',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-light)',
                 borderRadius: 12,
                 padding: '1.5rem',
                 textAlign: 'center',
@@ -174,16 +175,16 @@ export default function HomePage() {
                 boxShadow: '0 12px 40px rgba(0,0,0,0.18)',
               }}
             >
-              <p className="text-4xl font-extrabold mb-1" style={{ color: '#0066CC', lineHeight: 1 }}>-10%</p>
-              <p className="text-sm font-bold mb-2" style={{ color: '#1a2332' }}>{t('home.firstOrderOff')}</p>
-              <p className="text-xs mb-3" style={{ color: '#6b8caa' }}>{t('home.useCode')}</p>
+              <p className="text-4xl font-extrabold mb-1" style={{ color: 'var(--primary)', lineHeight: 1 }}>-10%</p>
+              <p className="text-sm font-bold mb-2" style={{ color: 'var(--text-1)' }}>{t('home.firstOrderOff')}</p>
+              <p className="text-xs mb-3" style={{ color: 'var(--text-2)' }}>{t('home.useCode')}</p>
               <div
-                className="inline-block font-mono font-bold text-sm px-4 py-1.5 rounded-lg"
-                style={{ background: '#e8f4fd', color: '#0066CC', border: '1.5px solid #90c8f0', letterSpacing: '0.08em' }}
+                className="inline-block font-mono font-bold rounded-lg"
+                style={{ background: 'var(--bg-accent)', color: 'var(--primary)', border: '1.5px solid var(--border-accent)', letterSpacing: '0.1em', padding: '10px 22px', fontSize: '1rem' }}
               >
                 WELCOME10
               </div>
-              <p className="text-xs mt-2" style={{ color: '#9bbdd6' }}>{t('home.validFirst')}</p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-3)' }}>{t('home.validFirst')}</p>
             </div>
 
           </div>
@@ -205,7 +206,7 @@ export default function HomePage() {
                 className="flex items-center gap-3 px-8 py-4 text-sm flex-1 justify-center"
                 style={{ color: 'var(--text-2)', borderRight: i < 3 ? '1px solid var(--border-light)' : 'none' }}
               >
-                <Icon size={16} className="flex-shrink-0" style={{ color: '#0066CC' }} />
+                <Icon size={16} className="flex-shrink-0" style={{ color: 'var(--primary)' }} />
                 <span className="font-medium">{t(`home.${key}`)}</span>
               </div>
             ))}
@@ -219,12 +220,12 @@ export default function HomePage() {
         <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '20px' }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div style={{ width: 4, height: 24, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
+              <div style={{ width: 4, height: 24, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
               <h2 className="text-base font-bold" style={{ color: 'var(--text-1)' }}>
                 {featured.length > 0 ? t('home.featuredProducts') : t('home.popularProducts')}
               </h2>
             </div>
-            <Link to="/products" className="text-xs font-semibold flex items-center gap-1" style={{ color: '#0066CC' }}
+            <Link to="/products" className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--primary)' }}
               onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
               onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
             >
@@ -262,7 +263,7 @@ export default function HomePage() {
             background: 'var(--bg-card)',
             border: '1.5px solid var(--border)',
             borderRadius: 12,
-            boxShadow: '0 2px 12px rgba(0,102,204,0.06)',
+            boxShadow: '0 2px 12px var(--brand-sm)',
             padding: '20px 24px',
             boxSizing: 'border-box',
             overflow: 'hidden',

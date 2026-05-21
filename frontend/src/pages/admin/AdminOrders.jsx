@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 
 const STATUS_STYLES = {
   pending:    { bg: '#fefce8', color: '#ca8a04',  border: '#fde047' },
-  confirmed:  { bg: 'var(--bg-accent)', color: '#0066CC', border: 'var(--border-accent)' },
+  confirmed:  { bg: 'var(--bg-accent)', color: 'var(--primary)', border: 'var(--border-accent)' },
   processing: { bg: '#f0fdf4', color: '#16a34a',  border: '#bbf7d0' },
   shipped:    { bg: '#faf5ff', color: '#9333ea',  border: '#e9d5ff' },
   delivered:  { bg: '#f0fdf4', color: '#15803d',  border: '#86efac' },
@@ -39,10 +39,10 @@ export default function AdminOrders() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <div style={{ width: 4, height: 28, background: '#0066CC', borderRadius: 3, flexShrink: 0 }} />
-        <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-1)' }}>Orders</h1>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3" style={{ paddingBottom: 8 }}>
+        <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
+        <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Orders</h1>
       </div>
 
       <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '14px 16px' }}>
@@ -64,7 +64,7 @@ export default function AdminOrders() {
               <thead>
                 <tr style={{ background: 'var(--bg-page)', borderBottom: '1.5px solid var(--border-light)' }}>
                   {['Order', 'Customer', 'Date', 'Status', 'Total', 'Actions'].map((h) => (
-                    <th key={h} className="text-left" style={{ padding: '10px 16px', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-3)' }}>{h}</th>
+                    <th key={h} className="text-left" style={{ padding: '12px 20px', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-3)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -76,15 +76,15 @@ export default function AdminOrders() {
                       onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <td style={{ padding: '12px 16px' }}>
-                        <Link to={`/orders/${order.id}`} style={{ fontWeight: 600, color: '#0066CC', textDecoration: 'none' }}>{order.order_number}</Link>
+                      <td style={{ padding: '16px 20px' }}>
+                        <Link to={`/orders/${order.id}`} style={{ fontWeight: 600, color: 'var(--primary)', textDecoration: 'none' }}>{order.order_number}</Link>
                       </td>
-                      <td style={{ padding: '12px 16px' }}>
+                      <td style={{ padding: '16px 20px' }}>
                         <p style={{ color: 'var(--text-1)', fontWeight: 500 }}>{order.user?.name}</p>
                         <p style={{ fontSize: '0.68rem', color: 'var(--text-3)' }}>{order.user?.email}</p>
                       </td>
-                      <td style={{ padding: '12px 16px', color: 'var(--text-2)' }}>{new Date(order.created_at).toLocaleDateString('en-GB')}</td>
-                      <td style={{ padding: '12px 16px' }}>
+                      <td style={{ padding: '16px 20px', color: 'var(--text-2)' }}>{new Date(order.created_at).toLocaleDateString('en-GB')}</td>
+                      <td style={{ padding: '16px 20px' }}>
                         <select
                           value={order.status}
                           onChange={(e) => updateStatus(order, e.target.value)}
@@ -95,9 +95,9 @@ export default function AdminOrders() {
                           ))}
                         </select>
                       </td>
-                      <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--text-1)' }}>{Number(order.total).toLocaleString()} MAD</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <Link to={`/orders/${order.id}`} style={{ fontSize: '0.72rem', color: '#0066CC', fontWeight: 600, textDecoration: 'none' }}>View →</Link>
+                      <td style={{ padding: '16px 20px', fontWeight: 700, color: 'var(--text-1)' }}>{Number(order.total).toLocaleString()} MAD</td>
+                      <td style={{ padding: '16px 20px' }}>
+                        <Link to={`/orders/${order.id}`} style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>View →</Link>
                       </td>
                     </tr>
                   )
@@ -107,7 +107,9 @@ export default function AdminOrders() {
           </div>
         </div>
       )}
-      <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+        <Pagination currentPage={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
+      </div>
     </div>
   )
 }
