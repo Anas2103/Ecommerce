@@ -180,8 +180,8 @@ export default function HomePage() {
                 {!user && (
                   <Link
                     to="/register"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 font-semibold text-xs rounded-lg transition-all"
-                    style={{ border: '1.5px solid rgba(255,255,255,0.40)', color: '#fff' }}
+                    className="inline-flex items-center gap-2 font-semibold transition-all"
+                    style={{ border: '1.5px solid rgba(255,255,255,0.40)', color: '#fff', borderRadius: 8, padding: '12px 28px', fontSize: '0.95rem' }}
                     onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >

@@ -18,7 +18,7 @@ export default function CookieBanner() {
       position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
       zIndex: 9999, width: 'calc(100% - 32px)', maxWidth: 680,
       background: 'var(--bg-card)', border: '1.5px solid var(--border-light)',
-      borderRadius: 16, padding: '18px 20px',
+      borderRadius: 16, padding: '18px 44px 18px 20px',
       boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
       display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
       animation: 'slideUp 0.3s cubic-bezier(0.22,1,0.36,1)',
@@ -32,8 +32,8 @@ export default function CookieBanner() {
         <button onClick={decline} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '8px 16px' }}>Decline</button>
         <button onClick={accept} className="btn-primary" style={{ fontSize: '0.8rem', padding: '8px 20px' }}>Accept All</button>
       </div>
-      <button onClick={decline} style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', display: 'flex', padding: 4 }}>
-        <X size={14} />
+      <button onClick={decline} style={{ position: 'absolute', top: 8, right: 12, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', display: 'flex', padding: 6, borderRadius: 6 }}>
+        <X size={16} />
       </button>
       <style>{`@keyframes slideUp { from { opacity:0; transform:translateX(-50%) translateY(20px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }`}</style>
     </div>
