@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /checkout
+Disallow: /profile
+Disallow: /orders
+
+Sitemap: https://ecommerce.ma/sitemap.xml
