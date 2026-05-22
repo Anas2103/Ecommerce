@@ -4,15 +4,11 @@
 
 A full-stack ecommerce platform built with **Laravel 12** (backend) and **React 19** (frontend). It supports three roles — Admin, Seller, and Client — with multilingual UI (English, French, Arabic with RTL), a shopping cart, PayPal payments, PDF invoices, and an AI-powered chatbot.
 
-## Livrables / Documents
+## Documents
 
-| Document | Fichier |
-|---|---|
-| Diagrammes UML (Use Case, Classes, Séquence, Composants) | `uml_ecommerce.pdf` |
-| Rapport de projet (Introduction → Besoins → Conception → Réalisation → Tests → Conclusion) | `rapport_projet_ecommerce.pdf` |
-| Présentation soutenance (9 slides) | `presentation_ecommerce.pptx` |
-
-> Regénérer : `py generate_uml.py` · `py generate_rapport.py` · `py generate_ppt.py`
+- `rapport_projet_ecommerce.pdf` — Rapport technique du projet
+- `uml_ecommerce.pdf` — Diagrammes UML (cas d'utilisation et classes)
+- `presentation_ecommerce.pptx` — Présentation de soutenance
 
 ---
 
