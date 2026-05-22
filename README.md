@@ -2,7 +2,7 @@
 
 > DOWFS201 — Projet de synthèse · Formateur : Khalid MZIBRA
 
-A full-stack ecommerce platform built with **Laravel 12** (backend) and **React 19** (frontend). It supports four roles — Admin, Seller, Client, and **Caissière de Charge** — with multilingual UI (English, French, Arabic with RTL), a shopping cart, PayPal payments, PDF invoices, and an AI-powered chatbot.
+A full-stack ecommerce platform built with **Laravel 12** (backend) and **React 19** (frontend). It supports three roles — Admin, Seller, and Client — with multilingual UI (English, French, Arabic with RTL), a shopping cart, PayPal payments, PDF invoices, and an AI-powered chatbot.
 
 ## Livrables / Documents
 
@@ -139,12 +139,11 @@ The frontend will be available at `http://localhost:5173`.
 
 ## Default Seeded Accounts
 
-| Role                | Email                     | Password |
-|---------------------|---------------------------|----------|
-| Admin               | admin@example.com         | password |
-| Seller              | seller@example.com        | password |
-| Client              | client@example.com        | password |
-| Caissière de Charge | caissiere@example.com     | password |
+| Role   | Email                 | Password |
+|--------|-----------------------|----------|
+| Admin  | admin@ecommerce.com   | password |
+| Seller | seller@ecommerce.com  | password |
+| Client | client@ecommerce.com  | password |
 
 ---
 
