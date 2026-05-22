@@ -9,7 +9,9 @@ use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RecommendationController;
+use App\Http\Controllers\Api\ReturnController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\SellerDocumentController;
 use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -82,6 +84,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'index']);
         Route::post('/wishlist/toggle', [WishlistController::class, 'toggle']);
 
+        // Return requests (clients create, sellers/admin manage)
+        Route::get('/returns', [ReturnController::class, 'index']);
+        Route::post('/returns', [ReturnController::class, 'store']);
+        Route::patch('/returns/{returnRequest}', [ReturnController::class, 'update']);
+
         // Seller routes
         Route::middleware('role:seller,admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
@@ -92,6 +99,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/seller/products', [ProductController::class, 'sellerProducts']);
             Route::get('/seller/products/{id}', [ProductController::class, 'sellerProductDetail']);
             Route::get('/seller/orders', [OrderController::class, 'sellerOrders']);
+            Route::get('/seller/returns', [ReturnController::class, 'index']);
+            Route::patch('/seller/returns/{returnRequest}', [ReturnController::class, 'update']);
+
+            // Seller verification documents
+            Route::get('/seller/documents', [SellerDocumentController::class, 'index']);
+            Route::post('/seller/documents', [SellerDocumentController::class, 'store']);
         });
 
         // Admin routes
@@ -122,6 +135,15 @@ Route::prefix('v1')->group(function () {
             // Reviews
             Route::get('/reviews', [AdminController::class, 'reviews']);
             Route::put('/reviews/{review}/approve', [AdminController::class, 'approveReview']);
+
+            // Seller documents
+            Route::get('/seller-documents', [SellerDocumentController::class, 'index']);
+            Route::put('/seller-documents/{sellerDocument}/approve', [SellerDocumentController::class, 'approve']);
+            Route::put('/seller-documents/{sellerDocument}/reject', [SellerDocumentController::class, 'reject']);
+
+            // Returns (admin view)
+            Route::get('/returns', [ReturnController::class, 'index']);
+            Route::patch('/returns/{returnRequest}', [ReturnController::class, 'update']);
         });
     });
 });

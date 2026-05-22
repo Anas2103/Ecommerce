@@ -57,7 +57,7 @@ function CheckoutPage() {
   const [placingOrder, setPlacingOrder] = useState(false)
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('card')
-  const [card, setCard] = useState({ name: '', number: '4111 1111 1111 1111', expiry: '12/27', cvv: '123' })
+  const [card, setCard] = useState({ name: '', number: '', expiry: '', cvv: '' })
   const [newAddress, setNewAddress] = useState({ full_name: user?.name || '', phone: user?.phone || '', address_line1: '', city: '', country: 'Morocco' })
 
   useEffect(() => {

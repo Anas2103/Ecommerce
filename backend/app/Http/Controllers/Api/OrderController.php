@@ -8,9 +8,12 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Mail\OrderConfirmed;
+use App\Mail\OrderStatusUpdated;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -68,16 +71,16 @@ class OrderController extends Controller
                 'address_id'         => $address->id,
                 'shipping_method_id' => $shippingMethod->id,
                 'status'             => 'confirmed',
-                'payment_status'     => 'paid',
+                'payment_status'     => ($data['payment_method'] === 'paypal' && !empty($data['payment_reference'])) ? 'paid' : 'pending',
                 'payment_method'     => $data['payment_method'],
-                'payment_reference'  => $data['payment_reference'] ?? ('SIM-' . strtoupper(substr(uniqid(), -5))),
+                'payment_reference'  => $data['payment_reference'] ?? null,
                 'subtotal'           => $subtotal,
                 'discount_amount'    => $discountAmount,
                 'shipping_amount'    => $shippingAmount,
                 'tax_amount'         => $taxAmount,
                 'total'              => $total,
                 'notes'              => $data['notes'] ?? null,
-                'paid_at'            => now(),
+                'paid_at'            => ($data['payment_method'] === 'paypal' && !empty($data['payment_reference'])) ? now() : null,
             ]);
 
             foreach ($cart->items as $item) {
@@ -107,7 +110,7 @@ class OrderController extends Controller
             DB::commit();
 
             try {
-                // Mail::to($user->email)->send(new OrderConfirmed($order));
+                Mail::to($user->email)->send(new OrderConfirmed($order->load(['items', 'user'])));
             } catch (\Exception $e) {}
 
             return response()->json([
@@ -180,7 +183,7 @@ class OrderController extends Controller
         $order->update($updates);
 
         try {
-            // Mail::to($order->user->email)->send(new OrderStatusUpdated($order));
+            Mail::to($order->user->email)->send(new OrderStatusUpdated($order->load('user')));
         } catch (\Exception $e) {}
 
         return response()->json(['data' => $order->fresh()]);
