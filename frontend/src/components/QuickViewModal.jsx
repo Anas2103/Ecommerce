@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { X, ShoppingCart, Heart, Star, ExternalLink } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { X, ShoppingCart, Heart, Star } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../store/cartSlice'
 import { setCartOpen } from '../store/uiSlice'
@@ -45,15 +44,15 @@ export default function QuickViewModal({ product, onClose }) {
 
   return (
     <div
-      onClick={onClose}
+      onClick={(e) => { e.stopPropagation(); e.preventDefault(); onClose(); }}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(4px)', animation: 'fadeIn 0.2s ease' }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
         className="quickview-modal-box"
         style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 18, width: '100%', maxWidth: 760, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.5)', animation: 'scaleIn 0.25s ease', position: 'relative' }}
       >
-        <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, zIndex: 10, width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-page)', border: '1.5px solid var(--border-light)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-2)' }}>
+        <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onClose(); }} style={{ position: 'absolute', top: 14, right: 14, zIndex: 10, width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-page)', border: '1.5px solid var(--border-light)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-2)' }}>
           <X size={16} />
         </button>
 
@@ -114,12 +113,6 @@ export default function QuickViewModal({ product, onClose }) {
               </div>
             )}
 
-            <Link to={`/products/${product.slug}`} onClick={onClose} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.84rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
-              onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-              onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-            >
-              <ExternalLink size={14} /> View full details
-            </Link>
           </div>
         </div>
       </div>

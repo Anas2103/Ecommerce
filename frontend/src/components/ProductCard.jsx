@@ -43,9 +43,11 @@ export default function ProductCard({ product }) {
   const catName     = product.category?.name_fr || product.category?.name || ''
 
   return (
+    <>
     <Link
       to={`/products/${product.slug}`}
       className="product-card-link"
+      onClick={(e) => { e.preventDefault(); setQuickView(true); }}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -196,7 +198,8 @@ export default function ProductCard({ product }) {
         @keyframes spin { to { transform: rotate(360deg); } }
         .product-card-link:hover .card-hover-actions { opacity: 1 !important; }
       `}</style>
-      {quickView && <QuickViewModal product={product} onClose={() => setQuickView(false)} />}
     </Link>
+    {quickView && <QuickViewModal product={product} onClose={() => setQuickView(false)} />}
+    </>
   )
 }
