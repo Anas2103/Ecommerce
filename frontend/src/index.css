@@ -427,7 +427,23 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   z-index: 50;
 }
 
+/* ── QuickViewModal desktop defaults (moved out of inline) ── */
+.quickview-grid {
+  grid-template-columns: 1fr 1fr;
+}
+.quickview-img {
+  border-radius: 16px 0 0 16px;
+  aspect-ratio: 1;
+}
+
 @media (max-width: 639px) {
+
+  /* Tighten icon buttons so all fit in one row */
+  .nav-icons > button,
+  .nav-icons > a,
+  .nav-icons > div > button {
+    padding: 6px 7px !important;
+  }
 
   /* ── Navbar: search drops to its own full-width row ── */
   .nav-main-row {
@@ -510,25 +526,19 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 
   /* ── QuickViewModal ── */
   .quickview-modal-box {
-    border-radius: 16px !important;
-    max-height: 85vh !important;
+    border-radius: 16px;
+    max-height: 88vh;
   }
   .quickview-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
   }
-  /* Override the square aspect-ratio; use a fixed compact height instead */
   .quickview-img {
-    border-radius: 16px 16px 0 0 !important;
-    aspect-ratio: auto !important;
-    height: 220px !important;
-    min-height: unset !important;
+    border-radius: 16px 16px 0 0;
+    aspect-ratio: auto;
+    height: 220px;
   }
-  .quickview-img img {
-    object-fit: cover !important;
-  }
-  /* Tighten the info panel */
   .quickview-info {
-    padding: 18px 16px 20px !important;
+    padding: 18px 16px 20px;
   }
 
   /* ── ProductCard: always show the eye/compare buttons (no hover on touch) ── */

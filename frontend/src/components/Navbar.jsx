@@ -239,7 +239,7 @@ export default function Navbar() {
               <span style={{ fontSize: '0.65rem' }} className="hidden sm:block">{mode === 'dark' ? 'Clair' : 'Sombre'}</span>
             </IconBtn>
 
-            <div ref={paletteMenuRef} className="hidden sm:block" style={{ position: 'relative' }}>
+            <div ref={paletteMenuRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setPaletteMenuOpen(!paletteMenuOpen)}
                 title="Theme"
