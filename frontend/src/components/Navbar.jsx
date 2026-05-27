@@ -258,7 +258,7 @@ export default function Navbar() {
               </button>
 
               {paletteMenuOpen && (
-                <div style={{
+                <div className="palette-dropdown" style={{
                   position: 'absolute', right: 0, top: '100%', marginTop: 8,
                   width: 220, background: 'var(--nav-dropdown)',
                   border: '1px solid var(--brand-br)',
