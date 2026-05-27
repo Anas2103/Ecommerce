@@ -1,24 +1,29 @@
 #!/bin/bash
 set -e
 
-# Create SQLite database file if it doesn't exist
+# Ensure database directory + SQLite file exist with correct ownership
+mkdir -p /var/www/html/database
 touch /var/www/html/database/database.sqlite
-chown www-data:www-data /var/www/html/database/database.sqlite
+chown -R www-data:www-data /var/www/html/database
+chmod 664 /var/www/html/database/database.sqlite
 
-# Generate app key if not set
-php artisan key:generate --force
+# Fix storage / bootstrap permissions
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Run migrations + seeders
-php artisan migrate --force
-php artisan db:seed --force 2>/dev/null || true
+# Helper to run artisan as www-data
+artisan() {
+    su -s /bin/bash www-data -c "cd /var/www/html && php artisan $*"
+}
 
-# Cache config for performance
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Run migrations (required)
+artisan "migrate --force"
 
-# Link storage
-php artisan storage:link 2>/dev/null || true
+# Seed (optional — don't fail if seeders error)
+artisan "db:seed --force" || echo "[warn] seeder skipped"
+
+# Link public storage (ignore if already linked)
+artisan "storage:link" || true
 
 # Start Apache
 exec apache2-foreground
