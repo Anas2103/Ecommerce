@@ -400,16 +400,35 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 .category-scroll::-webkit-scrollbar { display: none; }
 
 /* ─── Mobile Responsive ──────────────────────────────────── */
-@media (max-width: 767px) {
-  /* Hide announcement bar to save space */
-  .nav-announce { display: none !important; }
 
-  /* Product detail container */
+/* Prevent any element from causing horizontal scroll */
+html, body { overflow-x: hidden; }
+* { box-sizing: border-box; }
+
+@media (max-width: 767px) {
+
+  /* ── Navbar ── */
+  /* Tighten icon button padding so they all fit */
+  .nav-icons > button,
+  .nav-icons > a,
+  .nav-icons > div > button {
+    padding: 6px 6px !important;
+  }
+  /* Shrink search submit button */
+  header form > button {
+    padding: 9px 12px !important;
+  }
+
+  /* ── Product detail ── */
   .product-detail-wrap {
     padding: 16px 14px 28px !important;
   }
+  /* Reduce gap between image and info on mobile (gap-16 = 64px is too much) */
+  .product-detail-wrap .grid {
+    gap: 24px !important;
+  }
 
-  /* Cart item card: stack image + details vertically */
+  /* ── Cart ── */
   .cart-item-card {
     flex-direction: column !important;
     gap: 14px !important;
@@ -417,35 +436,25 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   }
   .cart-item-card .cart-item-img {
     width: 100% !important;
-    height: 200px !important;
+    height: 180px !important;
     border-radius: 12px !important;
   }
 
-  /* Checkout: tighter padding for section cards */
+  /* ── Checkout ── */
   .checkout-section-card {
     padding: 18px 14px !important;
   }
-
-  /* Payment method: stack vertically */
+  /* Stack payment method buttons (Credit Card / PayPal) */
   .payment-method-grid {
     grid-template-columns: 1fr !important;
   }
+  /* Stack 2-column form grids (name+phone, city+country, expiry+cvv) */
+  .checkout-section-card .grid {
+    grid-template-columns: 1fr !important;
+  }
 
-  /* Profile: reduce padding */
+  /* ── Profile ── */
   .profile-main-wrap {
     padding: 16px 14px 28px !important;
   }
-
-  /* Order detail: reduce padding */
-  .order-detail-wrap {
-    padding: 16px 14px 28px !important;
-  }
-
-  /* General page sections */
-  .page-section {
-    padding: 20px 14px 56px !important;
-  }
-
-  /* Ensure footer doesn't overlap bottom nav */
-  footer { margin-bottom: 0 !important; }
 }

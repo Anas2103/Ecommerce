@@ -232,7 +232,7 @@ export default function Navbar() {
           </div>
 
           {/* Right icon buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+          <div className="nav-icons" style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
 
             <IconBtn onClick={() => dispatch(toggleTheme())} title={mode === 'dark' ? 'Mode clair' : 'Mode sombre'}>
               {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
