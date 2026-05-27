@@ -50,6 +50,7 @@ export default function QuickViewModal({ product, onClose }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        className="quickview-modal-box"
         style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 18, width: '100%', maxWidth: 760, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.5)', animation: 'scaleIn 0.25s ease', position: 'relative' }}
       >
         <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, zIndex: 10, width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-page)', border: '1.5px solid var(--border-light)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-2)' }}>
@@ -64,7 +65,7 @@ export default function QuickViewModal({ product, onClose }) {
           </div>
 
           {/* Info */}
-          <div style={{ padding: '28px 28px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="quickview-info" style={{ padding: '28px 28px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             {product.category && <p style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)', margin: 0 }}>{product.category.name}</p>}
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-1)', margin: 0, lineHeight: 1.3 }}>{product.name}</h2>
 
