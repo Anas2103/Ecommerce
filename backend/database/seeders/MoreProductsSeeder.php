@@ -98,22 +98,13 @@ class MoreProductsSeeder extends Seeder
     {
         $seller = User::where('role', 'seller')->first();
 
-        $ctx = stream_context_create([
-            'http' => ['timeout' => 20, 'user_agent' => 'Mozilla/5.0', 'ignore_errors' => true],
-            'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false],
-        ]);
-
-        Storage::disk('public')->makeDirectory('products');
-
         foreach ($this->products as $data) {
-            // Skip if already exists
             if (Product::where('sku', $data['sku'])->exists()) {
-                $this->command->warn("Skipping existing SKU: {$data['sku']}");
                 continue;
             }
 
             $category = Category::where('slug', $data['category'])->first();
-            $photoId  = $data['photo'];
+            $sku      = $data['sku'];
             $tags     = $data['tags'];
 
             unset($data['category'], $data['photo'], $data['tags']);
@@ -132,22 +123,15 @@ class MoreProductsSeeder extends Seeder
                 ProductTag::create(['product_id' => $product->id, 'tag' => $tag]);
             }
 
-            // Download image
-            $filename = 'products/' . $data['sku'] . '.jpg';
-            $url      = "https://images.unsplash.com/{$photoId}?w=600&q=80&auto=format&fit=crop";
-            $bytes    = @file_get_contents($url, false, $ctx);
-
-            if ($bytes && strlen($bytes) > 5000) {
-                Storage::disk('public')->put($filename, $bytes);
+            // Use committed image file — no download needed
+            $imgPath = 'products/' . $sku . '.jpg';
+            if (file_exists(storage_path('app/public/' . $imgPath))) {
                 ProductImage::create([
                     'product_id' => $product->id,
-                    'image_path' => $filename,
-                    'is_primary'  => true,
-                    'sort_order'  => 0,
+                    'image_path' => $imgPath,
+                    'is_primary' => true,
+                    'sort_order' => 0,
                 ]);
-                $this->command->info("✓ {$data['name']} (" . round(strlen($bytes) / 1024) . " KB)");
-            } else {
-                $this->command->warn("✗ Image failed for {$data['name']}");
             }
         }
 

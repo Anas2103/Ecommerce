@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             ShippingMethodSeeder::class,
             CouponSeeder::class,
             ProductSeeder::class,
+            MoreProductsSeeder::class,
         ]);
     }
 }

@@ -58,6 +58,17 @@ class ProductSeeder extends Seeder
             foreach ($tags as $tag) {
                 ProductTag::create(['product_id' => $product->id, 'tag' => $tag]);
             }
+
+            // Create image record using the committed file (no download needed)
+            $imgPath = 'products/' . $productData['sku'] . '.jpg';
+            if (file_exists(storage_path('app/public/' . $imgPath))) {
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imgPath,
+                    'is_primary' => true,
+                    'sort_order' => 0,
+                ]);
+            }
         }
     }
 }
