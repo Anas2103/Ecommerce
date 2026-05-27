@@ -3,7 +3,6 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
 import Chatbot from './components/Chatbot'
-import MobileBottomNav from './components/MobileBottomNav'
 import ProtectedRoute from './components/ProtectedRoute'
 import BackToTop from './components/BackToTop'
 import CookieBanner from './components/CookieBanner'
@@ -43,7 +42,7 @@ function MainLayout({ children }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-page)' }}>
       <Navbar />
-      <main className="flex-1 pb-16 md:pb-0">
+      <main className="flex-1">
         {children}
       </main>
       <Footer />
@@ -52,7 +51,6 @@ function MainLayout({ children }) {
       <BackToTop />
       <CookieBanner />
       <CompareBar />
-      <MobileBottomNav />
     </div>
   )
 }
