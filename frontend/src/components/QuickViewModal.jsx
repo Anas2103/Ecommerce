@@ -56,9 +56,9 @@ export default function QuickViewModal({ product, onClose }) {
           <X size={16} />
         </button>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }} className="sm:grid-cols-2">
+        <div className="quickview-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
           {/* Image */}
-          <div style={{ background: 'var(--bg-page)', borderRadius: '16px 0 0 16px', overflow: 'hidden', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="quickview-img" style={{ background: 'var(--bg-page)', borderRadius: '16px 0 0 16px', overflow: 'hidden', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img src={product.primary_image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => e.target.src = '/placeholder.jpg'} />
             {hasDiscount && <div style={{ position: 'absolute', top: 14, left: 14, background: '#DC2626', color: '#fff', fontSize: '0.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>-{product.discount_percent}%</div>}
           </div>

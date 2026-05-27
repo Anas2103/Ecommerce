@@ -335,20 +335,21 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 @media (max-width: 480px) {
   .auth-card { padding: 32px 24px; }
 
-  /* Auth page: stack vertically so buttons appear above card */
+  /* Auth page: column layout so theme buttons appear above the card */
   .auth-page {
     flex-direction: column !important;
-    align-items: center !important;
+    align-items: stretch !important;
     justify-content: flex-start !important;
-    padding-top: 16px !important;
+    padding: 16px !important;
     gap: 12px !important;
   }
 
-  /* Theme buttons: switch from fixed to inline on mobile */
+  /* Theme buttons: leave fixed mode, sit as a row above the card */
   .auth-theme-controls {
-    position: static !important;
-    align-self: flex-end !important;
-    margin-right: 0 !important;
+    position: static;
+    display: flex;
+    justify-content: flex-end;
+    z-index: auto;
   }
 }
 
@@ -416,10 +417,15 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 .category-scroll::-webkit-scrollbar { display: none; }
 
 /* ─── Mobile Responsive ──────────────────────────────────── */
-
-/* Prevent horizontal scroll — use #root, not html/body (html/body breaks position:fixed on iOS) */
-#root { overflow-x: hidden; }
 * { box-sizing: border-box; }
+
+/* ── Auth page theme controls: fixed on desktop, inline above card on mobile ── */
+.auth-theme-controls {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+}
 
 @media (max-width: 639px) {
 
@@ -482,5 +488,38 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   /* ── Profile ── */
   .profile-main-wrap {
     padding: 16px 14px 28px !important;
+  }
+
+  /* ── Footer ── */
+  .footer-inner {
+    padding: 40px 20px 24px !important;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  .footer-bottom {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+  .footer-bottom-links {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  /* ── QuickViewModal: stack image above info ── */
+  .quickview-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .quickview-img {
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 260px;
+  }
+
+  /* ── ProductCard: always show the eye/compare buttons (no hover on touch) ── */
+  .card-hover-actions {
+    opacity: 1 !important;
+    background: rgba(0,0,0,0.12) !important;
   }
 }

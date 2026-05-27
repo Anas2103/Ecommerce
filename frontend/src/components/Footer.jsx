@@ -63,10 +63,10 @@ export default function Footer() {
       {/* Glowing top border */}
       <div style={{ height: 3, background: 'linear-gradient(90deg, transparent 0%, var(--primary) 30%, var(--nav-accent) 50%, var(--primary) 70%, transparent 100%)' }} />
 
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '60px 32px 32px' }}>
+      <div className="footer-inner" style={{ maxWidth: 1400, margin: '0 auto', padding: '60px 32px 32px' }}>
 
         {/* Main grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr 1.5fr', gap: 48, marginBottom: 56 }}>
+        <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr 1.5fr', gap: 48, marginBottom: 56 }}>
 
           {/* ── Brand ── */}
           <div>
@@ -225,14 +225,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div style={{
+        <div className="footer-bottom" style={{
           borderTop: '1px solid rgba(255,255,255,0.07)',
           paddingTop: 24,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 12,
         }}>
           <p style={{ color: 'var(--nav-dim)', fontSize: '0.82rem' }}>© 2025 Ecommerce.ma — Tous droits réservés.</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+          <div className="footer-bottom-links" style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
             {['SAV 7j/7', 'Livraison 48h', 'Paiement 100% sécurisé', 'Retours gratuits'].map((item) => (
               <span key={item} style={{ color: 'var(--nav-dim)', fontSize: '0.82rem' }}>{item}</span>
             ))}

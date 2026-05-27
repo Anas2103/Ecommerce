@@ -59,7 +59,7 @@ export default function LoginPage() {
     <div className="auth-page">
 
       {/* Theme controls */}
-      <div className="auth-theme-controls" style={{ position: 'fixed', top: 16, right: 16, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className="auth-theme-controls" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button
           onClick={() => dispatch(toggleTheme())}
           title={mode === 'dark' ? 'Light mode' : 'Dark mode'}
