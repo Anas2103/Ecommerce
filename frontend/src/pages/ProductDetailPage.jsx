@@ -100,7 +100,7 @@ export default function ProductDetailPage() {
 
   return (
     <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 32px 72px' }}>
+      <div className="product-detail-wrap" style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 32px 72px' }}>
 
         {/* Breadcrumb */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8125rem', marginBottom: 36, color: 'var(--text-3)' }}>

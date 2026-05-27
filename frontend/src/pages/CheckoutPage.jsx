@@ -110,13 +110,14 @@ function CheckoutPage() {
 
   const labelStyle = { fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-2)', marginBottom: 7, display: 'block' }
   const sectionCard = { background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 14, padding: '28px 32px' }
+  const sectionCardClass = 'checkout-section-card'
 
   return (
     <div style={{ background: 'var(--bg-page)', minHeight: '100vh' }}>
       <section style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px 56px' }}>
 
         {/* Header */}
-        <div style={{ ...sectionCard, marginBottom: 28 }}>
+        <div className={sectionCardClass} style={{ ...sectionCard, marginBottom: 28 }}>
           <div className="flex items-center gap-3" style={{ marginBottom: 28 }}>
             <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
             <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>{t('checkout.title')}</h1>
@@ -157,7 +158,7 @@ function CheckoutPage() {
 
             {/* Step 1: Address */}
             {step === 0 && (
-              <div style={sectionCard}>
+              <div className={sectionCardClass} style={sectionCard}>
                 <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.address')}</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {addresses.map((addr) => (
@@ -232,7 +233,7 @@ function CheckoutPage() {
 
             {/* Step 2: Shipping */}
             {step === 1 && (
-              <div style={sectionCard}>
+              <div className={sectionCardClass} style={sectionCard}>
                 <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.shipping')}</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {shippingMethods.map((method) => (
@@ -268,11 +269,11 @@ function CheckoutPage() {
 
             {/* Step 3: Payment */}
             {step === 2 && (
-              <div style={sectionCard}>
+              <div className={sectionCardClass} style={sectionCard}>
                 <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.payment')}</h2>
 
                 {/* Payment method selector */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+                <div className="payment-method-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
                   {[
                     {
                       id: 'card', label: 'Credit Card', desc: 'Visa, Mastercard',
@@ -384,7 +385,7 @@ function CheckoutPage() {
           </div>
 
           {/* Order summary */}
-          <div style={{ ...sectionCard, height: 'fit-content', position: 'sticky', top: 90 }}>
+          <div className={sectionCardClass} style={{ ...sectionCard, height: 'fit-content', position: 'sticky', top: 90 }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: 20 }}>{t('checkout.summary')}</h3>
 
             <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>

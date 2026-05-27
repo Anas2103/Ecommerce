@@ -398,3 +398,54 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   scrollbar-width: none;
 }
 .category-scroll::-webkit-scrollbar { display: none; }
+
+/* ─── Mobile Responsive ──────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Hide announcement bar to save space */
+  .nav-announce { display: none !important; }
+
+  /* Product detail container */
+  .product-detail-wrap {
+    padding: 16px 14px 28px !important;
+  }
+
+  /* Cart item card: stack image + details vertically */
+  .cart-item-card {
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 16px !important;
+  }
+  .cart-item-card .cart-item-img {
+    width: 100% !important;
+    height: 200px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Checkout: tighter padding for section cards */
+  .checkout-section-card {
+    padding: 18px 14px !important;
+  }
+
+  /* Payment method: stack vertically */
+  .payment-method-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Profile: reduce padding */
+  .profile-main-wrap {
+    padding: 16px 14px 28px !important;
+  }
+
+  /* Order detail: reduce padding */
+  .order-detail-wrap {
+    padding: 16px 14px 28px !important;
+  }
+
+  /* General page sections */
+  .page-section {
+    padding: 20px 14px 56px !important;
+  }
+
+  /* Ensure footer doesn't overlap bottom nav */
+  footer { margin-bottom: 0 !important; }
+}

@@ -105,7 +105,7 @@ export default function ProfilePage() {
   const onBlur  = (e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; e.target.style.background = 'var(--bg-input)' }
 
   return (
-    <div style={{ background: 'var(--bg-page)', minHeight: '100vh', padding: '32px 24px' }}>
+    <div className="profile-main-wrap" style={{ background: 'var(--bg-page)', minHeight: '100vh', padding: '32px 24px' }}>
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>

@@ -99,7 +99,7 @@ export default function CartPage() {
           {/* Items list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {items.map((item) => (
-              <div key={item.id} style={{
+              <div key={item.id} className="cart-item-card" style={{
                 background: 'var(--bg-card)',
                 border: '1.5px solid var(--border-light)',
                 borderRadius: 18,
@@ -112,6 +112,7 @@ export default function CartPage() {
                   <img
                     src={item.product?.primary_image_url || '/placeholder.jpg'}
                     alt={item.product?.name}
+                    className="cart-item-img"
                     style={{ width: 110, height: 110, objectFit: 'cover', borderRadius: 14, background: 'var(--bg-page)', display: 'block' }}
                     onError={(e) => e.target.src = '/placeholder.jpg'}
                   />

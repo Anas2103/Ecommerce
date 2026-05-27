@@ -128,7 +128,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40">
 
       {/* ── Announcement bar ── */}
-      <div style={{ background: 'var(--nav-anno-bg)', borderBottom: BORDER, padding: '6px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="nav-announce hidden sm:flex" style={{ background: 'var(--nav-anno-bg)', borderBottom: BORDER, padding: '6px 24px', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ color: 'var(--nav-accent)', fontSize: '0.72rem', fontWeight: 600 }}>
           🚚 {t('nav.freeShipping')}
         </span>
@@ -239,7 +239,7 @@ export default function Navbar() {
               <span style={{ fontSize: '0.65rem' }} className="hidden sm:block">{mode === 'dark' ? 'Clair' : 'Sombre'}</span>
             </IconBtn>
 
-            <div ref={paletteMenuRef} style={{ position: 'relative' }}>
+            <div ref={paletteMenuRef} className="hidden sm:block" style={{ position: 'relative' }}>
               <button
                 onClick={() => setPaletteMenuOpen(!paletteMenuOpen)}
                 title="Theme"

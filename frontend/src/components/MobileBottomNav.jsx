@@ -15,8 +15,6 @@ export default function MobileBottomNav() {
 
   return (
     <>
-      {/* Spacer so content isn't hidden behind nav */}
-      <div className="mobile-bottom-nav-spacer" style={{ display: 'none' }} />
 
       <nav style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
