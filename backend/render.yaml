@@ -28,5 +28,7 @@ services:
         value: sync
       - key: FILESYSTEM_DISK
         value: public
+      - key: FRONTEND_URL
+        value: https://frontend-anas2103-projects.vercel.app
       - key: APP_KEY
         generateValue: true

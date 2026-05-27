@@ -18,3 +18,8 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Project documents (keep locally, not in repo)
+*.pdf
+*.pptx
+*.ppt

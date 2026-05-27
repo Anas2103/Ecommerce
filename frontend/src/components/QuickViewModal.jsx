@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { X, ShoppingCart, Heart, Star } from 'lucide-react'
+import { X, ShoppingCart, Heart, Star, ExternalLink } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../store/cartSlice'
 import { setCartOpen } from '../store/uiSlice'
@@ -112,6 +113,17 @@ export default function QuickViewModal({ product, onClose }) {
                 </button>
               </div>
             )}
+
+            {/* View full page link */}
+            <Link
+              to={`/products/${product.slug}`}
+              onClick={onClose}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.82rem', color: 'var(--text-3)', textDecoration: 'none', fontWeight: 500, borderTop: '1px solid var(--border-light)', paddingTop: 12, marginTop: 4 }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--primary)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-3)' }}
+            >
+              <ExternalLink size={13} /> View full product page
+            </Link>
 
           </div>
         </div>
