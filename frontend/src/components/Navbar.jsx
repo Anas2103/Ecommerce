@@ -140,7 +140,7 @@ export default function Navbar() {
 
       {/* ── Main header ── */}
       <div style={{ background: NAV_BG, borderBottom: BORDER, padding: '0 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, height: 64, width: '100%' }}>
+        <div className="nav-main-row" style={{ display: 'flex', alignItems: 'center', gap: 16, height: 64, width: '100%' }}>
 
           {/* Logo */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
@@ -157,7 +157,7 @@ export default function Navbar() {
           </Link>
 
           {/* Search bar */}
-          <div ref={searchRef} style={{ flex: 1, position: 'relative' }}>
+          <div ref={searchRef} className="nav-search" style={{ flex: 1, position: 'relative' }}>
             <form onSubmit={handleSearch} style={{ display: 'flex' }}>
               <input
                 value={search}

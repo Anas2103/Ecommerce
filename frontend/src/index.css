@@ -405,19 +405,29 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 html, body { overflow-x: hidden; }
 * { box-sizing: border-box; }
 
-@media (max-width: 767px) {
+@media (max-width: 639px) {
 
-  /* ── Navbar ── */
-  /* Tighten icon button padding so they all fit */
-  .nav-icons > button,
-  .nav-icons > a,
-  .nav-icons > div > button {
-    padding: 6px 6px !important;
+  /* ── Navbar: search drops to its own full-width row ── */
+  .nav-main-row {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    padding: 8px 0 10px !important;
+    align-items: center !important;
+    row-gap: 8px !important;
   }
-  /* Shrink search submit button */
-  header form > button {
-    padding: 9px 12px !important;
+  /* Logo stays left, icons stay right — both on first row */
+  .nav-main-row > a    { order: 1; }
+  .nav-icons           { order: 2; margin-left: auto; }
+  /* Search bar goes full-width on second row */
+  .nav-search {
+    order: 3;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
+}
+
+@media (max-width: 767px) {
 
   /* ── Product detail ── */
   .product-detail-wrap {
