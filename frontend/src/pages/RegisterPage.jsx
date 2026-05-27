@@ -93,7 +93,7 @@ export default function RegisterPage() {
     <div className="auth-page" style={{ padding: '1rem' }}>
 
       {/* Theme controls */}
-      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className="auth-theme-controls" style={{ position: 'fixed', top: 16, right: 16, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8 }}>
         <button
           onClick={() => dispatch(toggleTheme())}
           title={mode === 'dark' ? 'Light mode' : 'Dark mode'}
