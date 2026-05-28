@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, ShoppingCart, Heart, Star, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -43,7 +44,7 @@ export default function QuickViewModal({ product, onClose }) {
     } catch {}
   }
 
-  return (
+  return createPortal(
     <div
       onClick={(e) => { e.stopPropagation(); e.preventDefault(); onClose(); }}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(4px)', animation: 'fadeIn 0.2s ease' }}
@@ -129,6 +130,7 @@ export default function QuickViewModal({ product, onClose }) {
         </div>
       </div>
       <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes scaleIn{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}`}</style>
-    </div>
+    </div>,
+    document.body
   )
 }

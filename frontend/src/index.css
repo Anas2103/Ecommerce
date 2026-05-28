@@ -427,7 +427,7 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   z-index: 50;
 }
 
-/* ── QuickViewModal desktop defaults (moved out of inline) ── */
+/* ── QuickViewModal desktop defaults ── */
 .quickview-grid {
   grid-template-columns: 1fr 1fr;
 }
