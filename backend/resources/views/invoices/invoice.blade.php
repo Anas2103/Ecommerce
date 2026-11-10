@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}">
 <head>
 <meta charset="UTF-8">
-<title>Facture {{ $order->order_number }}</title>
+<title>{{ __('Invoice') }} {{ $order->order_number }}</title>
 <style>
     body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #333; margin: 0; padding: 20px; }
     .header { display: flex; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #6366f1; padding-bottom: 20px; }
@@ -27,56 +27,56 @@
 <div class="header">
     <div>
         <div class="logo">🛒 E-Commerce</div>
-        <div style="color:#666; margin-top:5px;">Votre boutique en ligne</div>
+        <div style="color:#666; margin-top:5px;">{{ __('Your online store') }}</div>
         <div style="color:#666;">support@ecommerce.com</div>
     </div>
     <div>
-        <div class="invoice-title">FACTURE</div>
+        <div class="invoice-title">{{ strtoupper(__('Invoice')) }}</div>
         <div class="invoice-info">
             <div>N° {{ $order->order_number }}</div>
-            <div>Date: {{ $order->created_at->format('d/m/Y') }}</div>
+            <div>{{ __('Date') }}: {{ $order->created_at->format('d/m/Y') }}</div>
             @if($order->paid_at)
-            <div>Payé le: {{ $order->paid_at->format('d/m/Y H:i') }}</div>
+            <div>{{ __('Paid on') }}: {{ $order->paid_at->format('d/m/Y H:i') }}</div>
             @endif
-            <div><span class="badge badge-green">{{ strtoupper($order->payment_status) }}</span></div>
+            <div><span class="badge badge-green">{{ strtoupper(__(ucfirst($order->payment_status))) }}</span></div>
         </div>
     </div>
 </div>
 
 <div style="display:flex; gap:40px; margin-bottom:20px;">
     <div class="section" style="flex:1;">
-        <div class="section-title">Facturé à</div>
+        <div class="section-title">{{ __('Billed to') }}</div>
         @if($order->address)
         <div><strong>{{ $order->address->full_name }}</strong></div>
         <div>{{ $order->address->address_line1 }}</div>
         @if($order->address->address_line2)<div>{{ $order->address->address_line2 }}</div>@endif
         <div>{{ $order->address->city }}, {{ $order->address->postal_code }}</div>
         <div>{{ $order->address->country }}</div>
-        <div>Tél: {{ $order->address->phone }}</div>
+        <div>{{ __('Phone') }}: {{ $order->address->phone }}</div>
         @endif
     </div>
     <div class="section" style="flex:1;">
-        <div class="section-title">Informations de paiement</div>
-        <div><strong>Méthode:</strong> {{ ucfirst($order->payment_method ?? 'Carte') }}</div>
+        <div class="section-title">{{ __('Payment information') }}</div>
+        <div><strong>{{ __('Payment method') }}:</strong> {{ ucfirst($order->payment_method ?? 'card') }}</div>
         @if($order->payment_reference)
-        <div><strong>Référence:</strong> {{ $order->payment_reference }}</div>
+        <div><strong>{{ __('Reference') }}:</strong> {{ $order->payment_reference }}</div>
         @endif
         @if($order->shippingMethod)
-        <div><strong>Livraison:</strong> {{ $order->shippingMethod->name_fr ?? $order->shippingMethod->name }}</div>
+        <div><strong>{{ __('Shipping') }}:</strong> {{ app()->getLocale() === 'fr' ? ($order->shippingMethod->name_fr ?? $order->shippingMethod->name) : $order->shippingMethod->name }}</div>
         @endif
     </div>
 </div>
 
 <div class="section">
-    <div class="section-title">Articles commandés</div>
+    <div class="section-title">{{ __('Ordered items') }}</div>
     <table>
         <thead>
             <tr>
-                <th>Produit</th>
-                <th style="text-align:center;">Qté</th>
-                <th style="text-align:right;">Prix unitaire</th>
-                <th style="text-align:right;">Remise</th>
-                <th style="text-align:right;">Total</th>
+                <th>{{ __('Product') }}</th>
+                <th style="text-align:center;">{{ __('Qty') }}</th>
+                <th style="text-align:right;">{{ __('Unit price') }}</th>
+                <th style="text-align:right;">{{ __('Discount') }}</th>
+                <th style="text-align:right;">{{ __('Total') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -95,32 +95,32 @@
 
 <table class="totals" style="margin-top:20px;">
     <tr>
-        <td>Sous-total:</td>
+        <td>{{ __('Subtotal') }}:</td>
         <td style="text-align:right;">{{ number_format($order->subtotal, 2) }} MAD</td>
     </tr>
     @if($order->discount_amount > 0)
     <tr>
-        <td style="color:#ef4444;">Remise:</td>
+        <td style="color:#ef4444;">{{ __('Discount') }}:</td>
         <td style="text-align:right; color:#ef4444;">-{{ number_format($order->discount_amount, 2) }} MAD</td>
     </tr>
     @endif
     <tr>
-        <td>Frais de livraison:</td>
+        <td>{{ __('Shipping fees') }}:</td>
         <td style="text-align:right;">{{ number_format($order->shipping_amount, 2) }} MAD</td>
     </tr>
     <tr>
-        <td>TVA (20%):</td>
+        <td>{{ __('VAT (20%)') }}:</td>
         <td style="text-align:right;">{{ number_format($order->tax_amount, 2) }} MAD</td>
     </tr>
     <tr class="total-row">
-        <td><strong>TOTAL:</strong></td>
+        <td><strong>{{ strtoupper(__('Total')) }}:</strong></td>
         <td style="text-align:right;"><strong>{{ number_format($order->total, 2) }} MAD</strong></td>
     </tr>
 </table>
 
 <div class="footer">
-    <p>Merci pour votre achat ! Pour toute question, contactez support@ecommerce.com</p>
-    <p>E-Commerce • Casablanca, Maroc • www.ecommerce.com</p>
+    <p>{{ __('Thank you for your purchase! For any question, contact :email', ['email' => 'support@ecommerce.com']) }}</p>
+    <p>E-Commerce • Casablanca, {{ __('Morocco') }} • www.ecommerce.com</p>
 </div>
 </body>
 </html>

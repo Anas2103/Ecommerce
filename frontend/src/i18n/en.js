@@ -7,6 +7,7 @@ export default {
       freeShipping: 'Free shipping from 500 MAD',
       allProducts: 'All Products',
       searchBtn: 'Search',
+      darkMode: 'Dark', lightMode: 'Light',
     },
     common: { loading: 'Loading...', save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', confirm: 'Confirm', close: 'Close', back: 'Back', next: 'Next', yes: 'Yes', no: 'No', search: 'Search', filter: 'Filter', sort: 'Sort', all: 'All', active: 'Active', inactive: 'Inactive', actions: 'Actions', status: 'Status', price: 'Price', total: 'Total', quantity: 'Quantity', name: 'Name', email: 'Email', phone: 'Phone', address: 'Address', date: 'Date', noResults: 'No results found', error: 'An error occurred', success: 'Operation successful', required: 'This field is required', clear: 'Clear' },
     auth: { login: 'Login', register: 'Create Account', email: 'Email', password: 'Password', confirmPassword: 'Confirm Password', name: 'Full Name', phone: 'Phone', forgotPassword: 'Forgot password?', resetPassword: 'Reset', loginBtn: 'Sign In', registerBtn: 'Register', noAccount: 'No account yet?', hasAccount: 'Already have an account?', role: 'I am a...', client: 'Customer', seller: 'Seller', loginSuccess: 'Login successful', logoutSuccess: 'Logged out successfully', profileUpdated: 'Profile updated', passwordChanged: 'Password changed', currentPassword: 'Current password', newPassword: 'New password' },

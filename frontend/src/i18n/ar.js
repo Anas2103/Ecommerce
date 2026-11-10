@@ -8,6 +8,7 @@ export default {
       freeShipping: 'توصيل مجاني من 500 درهم',
       allProducts: 'جميع المنتجات',
       searchBtn: 'بحث',
+      darkMode: 'داكن', lightMode: 'فاتح',
     },
     common: {
       loading: 'جاري التحميل...', save: 'حفظ', cancel: 'إلغاء', delete: 'حذف',

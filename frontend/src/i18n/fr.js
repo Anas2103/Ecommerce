@@ -7,6 +7,7 @@ export default {
       freeShipping: 'Livraison gratuite dès 500 MAD',
       allProducts: 'Tous les produits',
       searchBtn: 'Rechercher',
+      darkMode: 'Sombre', lightMode: 'Clair',
     },
     common: { loading: 'Chargement...', save: 'Enregistrer', cancel: 'Annuler', delete: 'Supprimer', edit: 'Modifier', add: 'Ajouter', confirm: 'Confirmer', close: 'Fermer', back: 'Retour', next: 'Suivant', yes: 'Oui', no: 'Non', search: 'Rechercher', filter: 'Filtrer', sort: 'Trier', all: 'Tout', active: 'Actif', inactive: 'Inactif', actions: 'Actions', status: 'Statut', price: 'Prix', total: 'Total', quantity: 'Quantité', name: 'Nom', email: 'Email', phone: 'Téléphone', address: 'Adresse', date: 'Date', noResults: 'Aucun résultat', error: 'Une erreur est survenue', success: 'Opération réussie', required: 'Ce champ est requis', clear: 'Effacer' },
     auth: { login: 'Connexion', register: "Créer un compte", email: 'Email', password: 'Mot de passe', confirmPassword: 'Confirmer le mot de passe', name: 'Nom complet', phone: 'Téléphone', forgotPassword: 'Mot de passe oublié ?', resetPassword: 'Réinitialiser', loginBtn: 'Se connecter', registerBtn: "S'inscrire", noAccount: 'Pas encore de compte ?', hasAccount: 'Déjà un compte ?', role: 'Je suis...', client: 'Client', seller: 'Vendeur', loginSuccess: 'Connexion réussie', logoutSuccess: 'Déconnexion réussie', profileUpdated: 'Profil mis à jour', passwordChanged: 'Mot de passe modifié', currentPassword: 'Mot de passe actuel', newPassword: 'Nouveau mot de passe' },

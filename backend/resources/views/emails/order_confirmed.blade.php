@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
 <meta charset="UTF-8">
 <style>
@@ -19,42 +19,42 @@
 <body>
 <div class="card">
   <div class="header">
-    <h1>Commande confirmée</h1>
+    <h1>{{ __('Order confirmed') }}</h1>
   </div>
   <div class="body">
-    <p>Bonjour <strong>{{ $order->user->name }}</strong>,</p>
-    <p>Votre commande a bien été reçue et est en cours de traitement.</p>
+    <p>{{ __('Hello :name,', ['name' => $order->user->name]) }}</p>
+    <p>{{ __('We have received your order and are getting it ready.') }}</p>
     <p class="order-num">{{ $order->order_number }}</p>
 
     <table>
       <thead>
-        <tr><th>Produit</th><th>Qté</th><th>Prix</th></tr>
+        <tr><th>{{ __('Product') }}</th><th>{{ __('Qty') }}</th><th>{{ __('Price') }}</th></tr>
       </thead>
       <tbody>
         @foreach($order->items as $item)
         <tr>
           <td>{{ $item->product_name }}</td>
           <td>{{ $item->quantity }}</td>
-          <td>{{ number_format($item->total, 2) }} €</td>
+          <td>{{ number_format($item->total, 2) }} MAD</td>
         </tr>
         @endforeach
       </tbody>
       <tfoot>
         <tr class="total-row">
-          <td colspan="2">Total</td>
-          <td>{{ number_format($order->total, 2) }} €</td>
+          <td colspan="2">{{ __('Total') }}</td>
+          <td>{{ number_format($order->total, 2) }} MAD</td>
         </tr>
       </tfoot>
     </table>
 
     <p style="font-size:13px;color:#555;">
-      Méthode de paiement : <strong>{{ strtoupper($order->payment_method) }}</strong><br>
-      Statut : <strong>{{ ucfirst($order->status) }}</strong>
+      {{ __('Payment method') }} : <strong>{{ strtoupper($order->payment_method) }}</strong><br>
+      {{ __('Status') }} : <strong>{{ __(ucfirst($order->status)) }}</strong>
     </p>
 
-    <p>Merci pour votre achat !</p>
+    <p>{{ __('Thank you for your purchase!') }}</p>
   </div>
-  <div class="footer">© {{ date('Y') }} E-Commerce. Tous droits réservés.</div>
+  <div class="footer">© {{ date('Y') }} E-Commerce. {{ __('All rights reserved.') }}</div>
 </div>
 </body>
 </html>

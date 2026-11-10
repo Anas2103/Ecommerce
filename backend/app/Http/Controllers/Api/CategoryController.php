@@ -76,6 +76,6 @@ class CategoryController extends Controller
     {
         Category::where('parent_id', $category->id)->update(['parent_id' => null]);
         $category->delete();
-        return response()->json(['message' => 'Catégorie supprimée.']);
+        return response()->json(['message' => __('Category deleted.')]);
     }
 }

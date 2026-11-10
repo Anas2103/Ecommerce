@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
 <meta charset="UTF-8">
 <style>
@@ -28,27 +28,27 @@
 <body>
 <div class="card">
   <div class="header">
-    <h1>Mise à jour de commande</h1>
+    <h1>{{ __('Order update') }}</h1>
   </div>
   <div class="body">
-    <p>Bonjour <strong>{{ $order->user->name }}</strong>,</p>
-    <p>Le statut de votre commande <strong>{{ $order->order_number }}</strong> a été mis à jour :</p>
+    <p>{{ __('Hello :name,', ['name' => $order->user->name]) }}</p>
+    <p>{{ __('The status of your order :number has been updated:', ['number' => $order->order_number]) }}</p>
 
     <p style="margin:24px 0;">
-      <span class="status-badge">{{ ucfirst($order->status) }}</span>
+      <span class="status-badge">{{ __(ucfirst($order->status)) }}</span>
     </p>
 
     @if($order->status === 'shipped')
-      <p>Votre commande est en route. Vous la recevrez sous peu.</p>
+      <p>{{ __('Your order is on its way. It will arrive soon.') }}</p>
     @elseif($order->status === 'delivered')
-      <p>Votre commande a été livrée. Nous espérons que vous êtes satisfait(e) !</p>
+      <p>{{ __('Your order has been delivered. We hope you enjoy it!') }}</p>
     @elseif($order->status === 'cancelled')
-      <p>Votre commande a été annulée. Si vous pensez qu'il s'agit d'une erreur, contactez-nous.</p>
+      <p>{{ __('Your order has been cancelled. If you think this is a mistake, please contact us.') }}</p>
     @endif
 
-    <p style="font-size:13px;color:#666;margin-top:24px;">Référence : {{ $order->order_number }}</p>
+    <p style="font-size:13px;color:#666;margin-top:24px;">{{ __('Reference') }} : {{ $order->order_number }}</p>
   </div>
-  <div class="footer">© {{ date('Y') }} E-Commerce. Tous droits réservés.</div>
+  <div class="footer">© {{ date('Y') }} E-Commerce. {{ __('All rights reserved.') }}</div>
 </div>
 </body>
 </html>

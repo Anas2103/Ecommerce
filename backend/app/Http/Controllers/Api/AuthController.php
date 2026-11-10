@@ -49,12 +49,12 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Les identifiants fournis sont incorrects.'],
+                'email' => [__('The provided credentials are incorrect.')],
             ]);
         }
 
         if (!$user->is_active) {
-            return response()->json(['message' => 'Votre compte a été désactivé.'], 403);
+            return response()->json(['message' => __('Your account has been deactivated.')], 403);
         }
 
         // Merge guest cart
@@ -90,7 +90,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Déconnexion réussie.']);
+        return response()->json(['message' => __('Logged out.')]);
     }
 
     public function me(Request $request)
@@ -130,7 +130,7 @@ class AuthController extends Controller
 
         if (!Hash::check($data['current_password'], $user->password)) {
             throw ValidationException::withMessages([
-                'current_password' => ['Le mot de passe actuel est incorrect.'],
+                'current_password' => [__('The current password is incorrect.')],
             ]);
         }
 
@@ -138,14 +138,14 @@ class AuthController extends Controller
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['message' => 'Mot de passe modifié avec succès.', 'token' => $token]);
+        return response()->json(['message' => __('Password changed.'), 'token' => $token]);
     }
 
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
         Password::sendResetLink($request->only('email'));
-        return response()->json(['message' => 'Lien de réinitialisation envoyé si l\'email existe.']);
+        return response()->json(['message' => __('If this email exists, a reset link has been sent.')]);
     }
 
     public function resetPassword(Request $request)
@@ -162,10 +162,10 @@ class AuthController extends Controller
         });
 
         if ($status === Password::PASSWORD_RESET) {
-            return response()->json(['message' => 'Mot de passe réinitialisé avec succès.']);
+            return response()->json(['message' => __('Password reset successfully.')]);
         }
 
-        return response()->json(['message' => 'Lien invalide ou expiré.'], 400);
+        return response()->json(['message' => __('This link is invalid or has expired.')], 400);
     }
 
     private function userResponse(User $user): array

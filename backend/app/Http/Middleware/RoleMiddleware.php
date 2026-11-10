@@ -11,11 +11,11 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!$request->user()) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return response()->json(['message' => __('Unauthenticated.')], 401);
         }
 
         if (!in_array($request->user()->role, $roles)) {
-            return response()->json(['message' => 'Forbidden. Insufficient permissions.'], 403);
+            return response()->json(['message' => __('Forbidden. Insufficient permissions.')], 403);
         }
 
         return $next($request);
