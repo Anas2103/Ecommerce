@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Heart, ShoppingCart, Star, Package, Truck, ChevronRight, Minus, Plus, Share2, Copy, Check } from 'lucide-react'
+import { Heart, ShoppingCart, Package, Truck, ChevronRight, Minus, Plus, Share2, Copy, Check } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../store/cartSlice'
 import { setCartOpen } from '../store/uiSlice'
@@ -10,16 +10,16 @@ import ProductCard from '../components/ProductCard'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
+import usePopup from '../hooks/usePopup'
 
 export default function ProductDetailPage() {
   const { slug } = useParams()
   const dispatch = useDispatch()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useSelector((s) => s.auth)
   const [product, setProduct] = useState(null)
   const [related, setRelated] = useState([])
   const [alsoViewed, setAlsoViewed] = useState([])
-  const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState(0)
   const [activeTab, setActiveTab] = useState('description')
   const [quantity, setQuantity] = useState(1)
@@ -30,11 +30,21 @@ export default function ProductDetailPage() {
   const [zoomed, setZoomed] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    setLoading(true)
+  const [loadedSlug, setLoadedSlug] = useState(null)
+  const loading = loadedSlug !== slug
+
+  // Reset per-product UI state when navigating to another product.
+  const [prevSlug, setPrevSlug] = useState(slug)
+  if (prevSlug !== slug) {
+    setPrevSlug(slug)
     setActiveImage(0)
     setQuantity(1)
+  }
+
+  useEffect(() => {
+    let stale = false
     api.get(`/products/${slug}`).then(({ data }) => {
+      if (stale) return
       const p = data.data
       setProduct(p)
       setRelated(data.related || [])
@@ -46,14 +56,13 @@ export default function ProductDetailPage() {
         const next = [entry, ...prev.filter((x) => x.id !== p.id)].slice(0, 12)
         localStorage.setItem(key, JSON.stringify(next))
       } catch {}
-    }).catch(() => toast.error('Product not found')).finally(() => setLoading(false))
+    }).catch(() => { if (!stale) toast.error('Product not found') })
+      .finally(() => { if (!stale) setLoadedSlug(slug) })
+    return () => { stale = true }
   }, [slug])
 
-  useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') setZoomed(false) }
-    if (zoomed) window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [zoomed])
+  // Image lightbox: animated open/close, Escape, scroll lock.
+  const lightbox = usePopup(zoomed, () => setZoomed(false))
 
   useEffect(() => {
     if (product?.id) {
@@ -95,6 +104,11 @@ export default function ProductDetailPage() {
   if (loading) return <LoadingSpinner center size="lg" />
   if (!product) return <div className="text-center py-20" style={{ color: 'var(--text-2)' }}>Product not found</div>
 
+  // Show French name / description when the UI is in French.
+  const isFr = i18n.language === 'fr'
+  const displayName = (isFr && product.name_fr) || product.name
+  const displayDescription = (isFr && product.description_fr) || product.description
+
   const images = product.images || []
   const currentImage = images[activeImage]?.url || product.primary_image_url
 
@@ -123,7 +137,7 @@ export default function ProductDetailPage() {
             </>
           )}
           <ChevronRight size={14} />
-          <span style={{ fontWeight: 600, color: 'var(--text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{product.name}</span>
+          <span style={{ fontWeight: 600, color: 'var(--text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{displayName}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
@@ -178,7 +192,7 @@ export default function ProductDetailPage() {
                 {product.category.name}
               </Link>
             )}
-            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-1)', margin: 0, lineHeight: 1.25, marginBottom: 16 }}>{product.name}</h1>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-1)', margin: 0, lineHeight: 1.25, marginBottom: 16 }}>{displayName}</h1>
 
             {product.average_rating > 0 && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
@@ -355,7 +369,7 @@ export default function ProductDetailPage() {
 
           {activeTab === 'description' && (
             <div style={{ fontSize: '0.875rem', lineHeight: 1.75, whiteSpace: 'pre-wrap', color: 'var(--text-1)' }}>
-              {product.description || 'No description available.'}
+              {displayDescription || 'No description available.'}
             </div>
           )}
 
@@ -474,26 +488,23 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Lightbox */}
-      {zoomed && (
+      {lightbox.mounted && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={product.name}
+          className={`popup-overlay${lightbox.closing ? ' is-closing' : ''}`}
           onClick={() => setZoomed(false)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 1000,
-            background: 'rgba(0,0,0,0.88)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'zoom-out',
-            animation: 'fadeIn 0.2s ease',
-          }}
+          style={{ zIndex: 1000, background: 'rgba(0,0,0,0.88)', cursor: 'zoom-out' }}
         >
-          <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } } @keyframes scaleIn { from { transform: scale(0.88); opacity: 0 } to { transform: scale(1); opacity: 1 } }`}</style>
           <img
+            className="popup-panel"
             src={currentImage}
             alt={product.name}
             style={{
               maxWidth: '90vw', maxHeight: '90vh',
               objectFit: 'contain', borderRadius: 16,
               boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
-              animation: 'scaleIn 0.25s ease',
             }}
             onError={(e) => e.target.src = '/placeholder.jpg'}
           />

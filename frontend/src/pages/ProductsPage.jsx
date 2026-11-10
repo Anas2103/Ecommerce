@@ -3,19 +3,19 @@ import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SlidersHorizontal, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../services/api'
+import { categoryName } from '../i18n/catNames'
 import ProductCard from '../components/ProductCard'
 import Pagination from '../components/ui/Pagination'
 
 export default function ProductsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts]         = useState([])
   const [categories, setCategories]     = useState([])
   const [meta, setMeta]                 = useState({ current_page: 1, last_page: 1, total: 0 })
-  const [loading, setLoading]           = useState(true)
   const [filterOpen, setFilterOpen]     = useState(false)
-  const [minPriceDraft, setMinPriceDraft] = useState('')
-  const [maxPriceDraft, setMaxPriceDraft] = useState('')
+  const [minPriceDraft, setMinPriceDraft] = useState(() => searchParams.get('min_price') || '')
+  const [maxPriceDraft, setMaxPriceDraft] = useState(() => searchParams.get('max_price') || '')
   const filterRef   = useRef(null)
   const pillsRef    = useRef(null)
   const priceTimer  = useRef(null)
@@ -102,10 +102,14 @@ export default function ProductsPage() {
     priceTimer.current = setTimeout(() => setParam(key, val), 800)
   }
 
-  useEffect(() => {
+  // Keep the price inputs in sync when the URL changes externally (e.g. "clear filters").
+  const urlPriceKey = `${searchParams.get('min_price') || ''}|${searchParams.get('max_price') || ''}`
+  const [syncedPriceKey, setSyncedPriceKey] = useState(urlPriceKey)
+  if (syncedPriceKey !== urlPriceKey) {
+    setSyncedPriceKey(urlPriceKey)
     setMinPriceDraft(searchParams.get('min_price') || '')
     setMaxPriceDraft(searchParams.get('max_price') || '')
-  }, [searchParams.get('min_price'), searchParams.get('max_price')])
+  }
 
   useEffect(() => {
     api.get('/categories').then(({ data }) => setCategories(data.data || []))
@@ -116,8 +120,12 @@ export default function ProductsPage() {
     setTimeout(updateScrollState, 50)
   }, [categories])
 
+  const fetchKey = JSON.stringify([search, categoryId, minPrice, maxPrice, sort, page, inStock, featured])
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
+
   useEffect(() => {
-    setLoading(true)
+    let stale = false
     const params = { page, per_page: 24 }
     if (search)     params.search      = search
     if (categoryId) params.category_id = categoryId
@@ -128,11 +136,13 @@ export default function ProductsPage() {
     if (featured)   params.featured    = 'true'
     api.get('/products', { params })
       .then(({ data }) => {
+        if (stale) return
         setProducts(data.data || [])
         setMeta(data.meta || { current_page: 1, last_page: 1, total: 0 })
       })
-      .finally(() => setLoading(false))
-  }, [search, categoryId, minPrice, maxPrice, sort, page, inStock, featured])
+      .finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [search, categoryId, minPrice, maxPrice, sort, page, inStock, featured, fetchKey])
 
   // Close filter popover on outside click
   useEffect(() => {
@@ -403,7 +413,7 @@ export default function ProductsPage() {
                   onMouseEnter={(e) => { if (!active) { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)' } }}
                   onMouseLeave={(e) => { if (!active) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' } }}
                 >
-                  {cat.name_en || cat.name_fr || cat.name}
+                  {categoryName(cat, i18n.language)}
                 </button>
               )
             })}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
@@ -22,101 +22,39 @@ function useCountdown() {
 }
 
 /* ── Demo products (shown when the API returns nothing) ── */
-const DEMO_PRODUCTS = [
-  {
-    id: 'd1', slug: 'samsung-galaxy-a54',
-    name: 'Samsung Galaxy A54 128Go',
-    category: { name_fr: 'Smartphones', name_ar: 'هواتف ذكية', name: 'Smartphones' },
-    price: 3599, final_price: 2999, discount_percent: 17, average_rating: 4.5, stock: 12,
-    primary_image_url: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd2', slug: 'macbook-air-m2',
-    name: 'MacBook Air M2 256Go',
-    category: { name_fr: 'Ordinateurs', name_ar: 'حواسيب', name: 'Ordinateurs' },
-    price: 12999, final_price: 11499, discount_percent: 12, average_rating: 4.8, stock: 5,
-    primary_image_url: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd3', slug: 'parfum-chanel-n5',
-    name: 'Chanel N°5 Eau de Parfum 100ml',
-    category: { name_fr: 'Beauté', name_ar: 'الجمال والعناية', name: 'Beauté' },
-    price: 1899, final_price: 1499, discount_percent: 21, average_rating: 4.7, stock: 20,
-    primary_image_url: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd4', slug: 'robe-elegante-femme',
-    name: 'Robe Élégante Femme – Été 2024',
-    category: { name_fr: 'Femme', name_ar: 'الأزياء النسائية', name: 'Femme' },
-    price: 699, final_price: 499, discount_percent: 29, average_rating: 4.3, stock: 30,
-    primary_image_url: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd5', slug: 'canape-cuir-3places',
-    name: 'Canapé en Cuir 3 Places Milano',
-    category: { name_fr: 'Mobilier', name_ar: 'الأثاث', name: 'Mobilier' },
-    price: 8499, final_price: 6999, discount_percent: 18, average_rating: 4.6, stock: 4,
-    primary_image_url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd6', slug: 'tapis-yoga-professionnel',
-    name: 'Tapis de Yoga Professionnel 6mm',
-    category: { name_fr: 'Sports', name_ar: 'الرياضة', name: 'Sports' },
-    price: 399, final_price: 299, discount_percent: 25, average_rating: 4.4, stock: 50,
-    primary_image_url: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd7', slug: 'roman-alchimiste',
-    name: 'L\'Alchimiste – Paulo Coelho',
-    category: { name_fr: 'Livres', name_ar: 'الكتب', name: 'Livres' },
-    price: 89, final_price: 69, discount_percent: 22, average_rating: 4.9, stock: 100,
-    primary_image_url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd8', slug: 'montre-casio-gshock',
-    name: 'Casio G-Shock DW-5600E',
-    category: { name_fr: 'Accessoires', name_ar: 'الاكسسوارات', name: 'Accessoires' },
-    price: 999, final_price: 799, discount_percent: 20, average_rating: 4.6, stock: 18,
-    primary_image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd9', slug: 'iphone-15-pro',
-    name: 'iPhone 15 Pro 256Go – Titane Naturel',
-    category: { name_fr: 'Smartphones', name_ar: 'هواتف ذكية', name: 'Smartphones' },
-    price: 15999, final_price: 14499, discount_percent: 9, average_rating: 4.8, stock: 7,
-    primary_image_url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd10', slug: 'nike-air-max-270',
-    name: 'Nike Air Max 270 React – Blanc/Bleu',
-    category: { name_fr: 'Sports', name_ar: 'الرياضة', name: 'Sports' },
-    price: 1299, final_price: 999, discount_percent: 23, average_rating: 4.5, stock: 24,
-    primary_image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd11', slug: 'appareil-photo-canon-eos',
-    name: 'Canon EOS M50 Mark II Kit 15-45mm',
-    category: { name_fr: 'Électronique', name_ar: 'الإلكترونيات', name: 'Électronique' },
-    price: 6999, final_price: 5799, discount_percent: 17, average_rating: 4.7, stock: 9,
-    primary_image_url: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80&fit=crop',
-  },
-  {
-    id: 'd12', slug: 'sneakers-adidas-ultraboost',
-    name: 'Adidas Ultraboost 22 Running',
-    category: { name_fr: 'Sports', name_ar: 'الرياضة', name: 'Sports' },
-    price: 1599, final_price: 1199, discount_percent: 25, average_rating: 4.6, stock: 16,
-    primary_image_url: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400&q=80&fit=crop',
-  },
-]
+function Countdown() {
+  const countdown = useCountdown()
+  return (
+    <>
+      {[
+        { val: countdown.h, label: 'h' },
+        { val: countdown.m, label: 'm' },
+        { val: countdown.s, label: 's' },
+      ].map(({ val, label }, i) => (
+        <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {i > 0 && <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ef4444' }}>:</span>}
+          <span style={{
+            minWidth: 32, height: 28, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            background: '#ef4444', color: '#fff', fontWeight: 800, fontSize: '0.8125rem',
+            borderRadius: 6, fontVariantNumeric: 'tabular-nums',
+          }}>
+            {String(val).padStart(2, '0')}{label}
+          </span>
+        </span>
+      ))}
+    </>
+  )
+}
 
 export default function HomePage() {
   const { t } = useTranslation()
   const { user } = useSelector((s) => s.auth)
   const [featured, setFeatured] = useState([])
   const [loading, setLoading] = useState(true)
-  const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [recentlyViewed, setRecentlyViewed] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('recentlyViewed') || '[]') } catch { return [] }
+  })
   const [flashProducts, setFlashProducts] = useState([])
-  const countdown = useCountdown()
 
   useEffect(() => {
     const load = async () => {
@@ -134,13 +72,9 @@ export default function HomePage() {
     }
     load()
     loadFlash()
-    try {
-      const rv = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
-      setRecentlyViewed(rv)
-    } catch {}
   }, [])
 
-  const displayProducts = featured.length > 0 ? featured : DEMO_PRODUCTS
+  const displayProducts = featured
 
   return (
     <div style={{ background: 'var(--bg-page)' }}>
@@ -286,7 +220,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Flash Sale ───────────────────────────────────── */}
-      {(flashProducts.length > 0 || true) && (
+      {(
         <section style={{ padding: '0 16px 16px', boxSizing: 'border-box' }}>
           <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 12, padding: '20px' }}>
             {/* Header row */}
@@ -299,22 +233,7 @@ export default function HomePage() {
               {/* Countdown */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-3)', fontWeight: 500 }}>{t('home.flashSaleEnds')}:</span>
-                {[
-                  { val: countdown.h, label: 'h' },
-                  { val: countdown.m, label: 'm' },
-                  { val: countdown.s, label: 's' },
-                ].map(({ val, label }, i) => (
-                  <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    {i > 0 && <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ef4444' }}>:</span>}
-                    <span style={{
-                      minWidth: 32, height: 28, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      background: '#ef4444', color: '#fff', fontWeight: 800, fontSize: '0.8125rem',
-                      borderRadius: 6, fontVariantNumeric: 'tabular-nums',
-                    }}>
-                      {String(val).padStart(2, '0')}{label}
-                    </span>
-                  </span>
-                ))}
+                <Countdown />
               </div>
               <Link to="/products?sort=discount" style={{ fontSize: '0.78rem', fontWeight: 600, color: '#ef4444', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
                 onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}

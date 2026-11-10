@@ -7,6 +7,7 @@ import { toggleTheme, togglePalette } from '../store/themeSlice'
 import { logoutUser } from '../store/authSlice'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
+import { categoryName } from '../i18n/catNames'
 import toast from 'react-hot-toast'
 
 const NAV_BG   = 'var(--nav-bg)'
@@ -76,6 +77,8 @@ export default function Navbar() {
   const [search, setSearch] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  // Hide stale results once the query drops below the 2-character minimum.
+  const visibleSuggestions = search.trim().length >= 2 ? suggestions : []
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [categories, setCategories] = useState([])
   const searchRef = useRef(null)
@@ -97,7 +100,7 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    if (!search.trim() || search.length < 2) { setSuggestions([]); return }
+    if (search.trim().length < 2) return
     const timer = setTimeout(async () => {
       try {
         const { data } = await api.get(`/products?search=${encodeURIComponent(search)}&per_page=6`)
@@ -163,7 +166,7 @@ export default function Navbar() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onFocus={(e) => {
-                  suggestions.length > 0 && setShowSuggestions(true)
+                  visibleSuggestions.length > 0 && setShowSuggestions(true)
                   e.target.style.borderColor = 'var(--primary)'
                   e.target.style.boxShadow = '0 0 0 3px var(--brand-md)'
                   e.target.style.background = 'rgba(255,255,255,0.1)'
@@ -200,14 +203,14 @@ export default function Navbar() {
             </form>
 
             {/* Search suggestions */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div style={{
+            {showSuggestions && visibleSuggestions.length > 0 && (
+              <div className="dropdown-pop" style={{
                 position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6,
                 background: 'var(--nav-dropdown)', borderRadius: 12,
                 border: '1px solid var(--brand-br)',
                 boxShadow: '0 16px 48px rgba(0,0,0,0.5)', zIndex: 50, overflow: 'hidden',
               }}>
-                {suggestions.map((p) => (
+                {visibleSuggestions.map((p) => (
                   <Link
                     key={p.id}
                     to={`/products/${p.slug}`}
@@ -236,7 +239,7 @@ export default function Navbar() {
 
             <IconBtn onClick={() => dispatch(toggleTheme())} title={mode === 'dark' ? 'Mode clair' : 'Mode sombre'}>
               {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-              <span style={{ fontSize: '0.65rem' }} className="hidden sm:block">{mode === 'dark' ? 'Clair' : 'Sombre'}</span>
+              <span style={{ fontSize: '0.65rem' }} className="hidden sm:block">{mode === 'dark' ? t('nav.lightMode') : t('nav.darkMode')}</span>
             </IconBtn>
 
             <div ref={paletteMenuRef} style={{ position: 'relative' }}>
@@ -258,7 +261,7 @@ export default function Navbar() {
               </button>
 
               {paletteMenuOpen && (
-                <div className="palette-dropdown" style={{
+                <div className="palette-dropdown dropdown-pop" style={{
                   position: 'absolute', right: 0, top: '100%', marginTop: 8,
                   width: 220, background: 'var(--nav-dropdown)',
                   border: '1px solid var(--brand-br)',
@@ -352,7 +355,7 @@ export default function Navbar() {
               </button>
 
               {langMenuOpen && (
-                <div style={{
+                <div className="dropdown-pop" style={{
                   position: 'absolute', right: 0, top: '100%', marginTop: 8,
                   width: 150, background: 'var(--nav-dropdown)',
                   border: '1px solid var(--brand-br)',
@@ -429,7 +432,7 @@ export default function Navbar() {
                 </button>
 
                 {userMenuOpen && (
-                  <div style={{
+                  <div className="dropdown-pop" style={{
                     position: 'absolute', right: 0, top: '100%', marginTop: 8,
                     width: 220, background: 'var(--nav-dropdown)',
                     border: '1px solid var(--brand-br)',
@@ -568,7 +571,7 @@ export default function Navbar() {
                     e.currentTarget.style.boxShadow = isActive ? '0 0 16px var(--brand-lg)' : 'none'
                   }}
                 >
-                  {cat.name_en || cat.name_fr || cat.name}
+                  {categoryName(cat, i18n.language)}
                 </Link>
               )
             })}
@@ -578,7 +581,7 @@ export default function Navbar() {
 
       {/* ── Mobile menu ── */}
       {mobileMenuOpen && (
-        <div className="md:hidden" style={{ background: 'var(--nav-dropdown)', borderBottom: BORDER, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+        <div className="md:hidden dropdown-pop" style={{ background: 'var(--nav-dropdown)', borderBottom: BORDER, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
           {[
             { to: '/',         label: t('nav.home') },
             { to: '/products', label: t('nav.products') },
@@ -595,7 +598,7 @@ export default function Navbar() {
               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--brand-sm)'; e.currentTarget.style.color = 'var(--nav-text)' }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--nav-muted)' }}
             >
-              {cat.name_fr || cat.name}
+              {categoryName(cat, i18n.language)}
             </Link>
           ))}
           {!user && (

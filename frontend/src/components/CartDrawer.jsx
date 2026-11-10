@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useScrollLock } from '../hooks/usePopup'
 import { useDispatch, useSelector } from 'react-redux'
 import { X, Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react'
 import { setCartOpen } from '../store/uiSlice'
@@ -13,12 +14,17 @@ export default function CartDrawer() {
   const { cartOpen } = useSelector((s) => s.ui)
   const { items, itemCount, subtotal } = useSelector((s) => s.cart)
 
-  useEffect(() => {
-    document.body.style.overflow = cartOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [cartOpen])
+  useScrollLock(cartOpen)
 
   const close = () => dispatch(setCartOpen(false))
+
+  // Escape closes the drawer
+  useEffect(() => {
+    if (!cartOpen) return
+    const onKey = (e) => { if (e.key === 'Escape') dispatch(setCartOpen(false)) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [cartOpen, dispatch])
 
   const handleUpdate = async (item, qty) => {
     if (qty < 1) return
@@ -42,6 +48,11 @@ export default function CartDrawer() {
 
       {/* Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('cart.title')}
+        aria-hidden={!cartOpen}
+        inert={!cartOpen}
         className={`fixed right-0 top-0 bottom-0 w-full max-w-sm z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${cartOpen ? 'translate-x-0' : 'translate-x-full'}`}
         style={{ background: 'var(--bg-card)', borderLeft: '1.5px solid var(--border-light)', boxShadow: '0 0 40px rgba(0,0,0,0.18)' }}
       >
@@ -58,6 +69,7 @@ export default function CartDrawer() {
           </div>
           <button
             onClick={close}
+            aria-label="Close cart"
             style={{ padding: 6, borderRadius: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-3)' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-page)'; e.currentTarget.style.color = 'var(--text-1)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' }}

@@ -1,32 +1,39 @@
 ﻿import { X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useId } from 'react'
+import { createPortal } from 'react-dom'
+import usePopup from '../../hooks/usePopup'
+
+const SIZES = { sm: 448, md: 512, lg: 672, xl: 896 }
 
 export default function Modal({ isOpen, onClose, title, children, size = 'md' }) {
-  useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = ''
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
+  const { mounted, closing } = usePopup(isOpen, onClose)
+  const titleId = useId()
+  if (!mounted) return null
 
-  if (!isOpen) return null
-
-  const sizes = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative w-full ${sizes[size]} card shadow-2xl`}>
+  return createPortal(
+    <div
+      className={`popup-overlay${closing ? ' is-closing' : ''}`}
+      style={{ zIndex: 1000 }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        className="popup-panel"
+        style={{ width: '100%', maxWidth: SIZES[size] ?? SIZES.md, background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 16, boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}
+      >
         {title && (
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-slate-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 transition-colors">
-              <X size={20} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1.5px solid var(--border-light)' }}>
+            <h3 id={titleId} style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', margin: 0 }}>{title}</h3>
+            <button type="button" className="popup-close" style={{ position: 'static' }} onClick={onClose} aria-label="Close">
+              <X size={16} />
             </button>
           </div>
         )}
-        <div className="p-4 max-h-[80vh] overflow-y-auto">{children}</div>
+        <div style={{ padding: 20, maxHeight: '80vh', overflowY: 'auto' }}>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
-

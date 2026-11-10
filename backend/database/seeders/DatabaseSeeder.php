@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
             CouponSeeder::class,
             ProductSeeder::class,
             MoreProductsSeeder::class,
+            ProductDescriptionSeeder::class,
+            DemoDataSeeder::class,
         ]);
     }
 }
