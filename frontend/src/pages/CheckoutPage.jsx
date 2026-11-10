@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { MapPin, Truck, CreditCard, CheckCircle, Plus, Gift } from 'lucide-react'
+import { MapPin, Truck, CreditCard, CheckCircle, Plus, Gift, Tag, X } from 'lucide-react'
 import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js'
 import { fetchCart } from '../store/cartSlice'
 import api from '../services/api'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
+import StripeCardPayment from '../components/StripeCardPayment'
 
 const steps = ['address', 'shipping', 'payment']
 const MAD_TO_USD = 10 // 1 USD ≈ 10 MAD (approximate conversion for PayPal)
+
+// Real payment providers are enabled by their public keys; without them checkout runs in demo mode.
+const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID
+const paypalEnabled = Boolean(PAYPAL_CLIENT_ID) && PAYPAL_CLIENT_ID !== 'YOUR_PAYPAL_SANDBOX_CLIENT_ID'
+const stripeEnabled = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
 function PayPalButtonsWrapper({ total, onSuccess }) {
   const [{ isPending }] = usePayPalScriptReducer()
@@ -23,6 +29,8 @@ function PayPalButtonsWrapper({ total, onSuccess }) {
   return (
     <PayPalButtons
       style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay', height: 48 }}
+      // Re-create the buttons when the amount changes (e.g. coupon applied) so PayPal never charges a stale total.
+      forceReRender={[total]}
       createOrder={(data, actions) =>
         actions.order.create({
           purchase_units: [{
@@ -52,8 +60,9 @@ function CheckoutPage() {
   const [shippingMethods, setShippingMethods] = useState([])
   const [selectedAddress, setSelectedAddress] = useState(null)
   const [selectedShipping, setSelectedShipping] = useState(null)
-  const [couponCode, setCouponCode] = useState('')
-  const [discount, setDiscount] = useState(0)
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState(null) // { code, discount }
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
   const [placingOrder, setPlacingOrder] = useState(false)
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('card')
@@ -81,16 +90,33 @@ function CheckoutPage() {
     } catch (err) { toast.error(err.response?.data?.message || t('common.error')) }
   }
 
-  const placeOrder = async (paypalTransactionId = null) => {
+  // Validate the code server-side so the summary (and the PayPal amount) include the discount.
+  const applyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setApplyingCoupon(true)
+    try {
+      const { data } = await api.post('/cart/coupon', { code })
+      setAppliedCoupon({ code, discount: Number(data.discount) || 0 })
+      toast.success(`Coupon applied: -${Number(data.discount).toLocaleString()} MAD`)
+    } catch (err) {
+      setAppliedCoupon(null)
+      toast.error(err.response?.data?.message || t('common.error'))
+    } finally { setApplyingCoupon(false) }
+  }
+
+  const removeCoupon = () => { setAppliedCoupon(null); setCouponInput('') }
+
+  const placeOrder = async ({ method = 'card', reference } = {}) => {
     if (!selectedAddress || !selectedShipping) return
     setPlacingOrder(true)
     try {
       const { data } = await api.post('/orders', {
         address_id: selectedAddress.id,
         shipping_method_id: selectedShipping.id,
-        payment_method: paypalTransactionId ? 'paypal' : 'card',
-        payment_reference: paypalTransactionId || undefined,
-        coupon_code: couponCode || undefined,
+        payment_method: method,
+        payment_reference: reference,
+        coupon_code: appliedCoupon?.code,
         notes: '',
       })
       await dispatch(fetchCart())
@@ -100,6 +126,7 @@ function CheckoutPage() {
     finally { setPlacingOrder(false) }
   }
 
+  const discount = appliedCoupon?.discount || 0
   const shippingCost = selectedShipping?.price || 0
   const taxableAmount = (subtotal - discount) + Number(shippingCost)
   const tax = Math.round(taxableAmount * 0.2 * 100) / 100
@@ -276,7 +303,7 @@ function CheckoutPage() {
                 <div className="payment-method-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
                   {[
                     {
-                      id: 'card', label: 'Credit Card', desc: 'Visa, Mastercard',
+                      id: 'card', label: 'Credit Card', desc: stripeEnabled ? 'Visa, Mastercard · Stripe' : 'Demo mode',
                       icon: (
                         <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
                           <rect width="22" height="16" rx="3" fill="#1a56db"/>
@@ -295,7 +322,7 @@ function CheckoutPage() {
                         </svg>
                       ),
                     },
-                  ].map(({ id, label, desc, icon }) => {
+                  ].filter(({ id }) => id !== 'paypal' || paypalEnabled).map(({ id, label, desc, icon }) => {
                     const active = paymentMethod === id
                     return (
                       <button
@@ -322,10 +349,21 @@ function CheckoutPage() {
                 </div>
 
                 {/* Card form */}
-                {paymentMethod === 'card' && (
+                {paymentMethod === 'card' && stripeEnabled && (
+                  <StripeCardPayment
+                    shippingMethodId={selectedShipping?.id}
+                    couponCode={appliedCoupon?.code}
+                    total={total}
+                    disabled={placingOrder}
+                    onPaid={(intentId) => placeOrder({ method: 'card', reference: intentId })}
+                    payLabel={t('checkout.placeOrder')}
+                    processingLabel={t('checkout.processing')}
+                  />
+                )}
+                {paymentMethod === 'card' && !stripeEnabled && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                     <div style={{ padding: '12px 16px', borderRadius: 10, background: '#fefce8', border: '1px solid #fde68a', color: '#b45309', fontSize: '0.82rem' }}>
-                      ⚠️ Simulated payment — no real transaction will be processed
+                      ⚠️ Demo mode — card payments are not connected, nothing will be charged. The order is created with payment “pending”.
                     </div>
                     {[
                       { label: t('checkout.cardName'), key: 'name', type: 'text' },
@@ -346,10 +384,6 @@ function CheckoutPage() {
                         <input value={card.cvv} onChange={(e) => setCard({ ...card, cvv: e.target.value })} className="input" maxLength={4} />
                       </div>
                     </div>
-                    <div>
-                      <label style={labelStyle}>Promo code (optional)</label>
-                      <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="WELCOME10" className="input" />
-                    </div>
                   </div>
                 )}
 
@@ -363,20 +397,16 @@ function CheckoutPage() {
                         Amount: <strong style={{ color: 'var(--text-1)' }}>${(total / MAD_TO_USD).toFixed(2)} USD</strong> (≈ {total.toLocaleString()} MAD)
                       </span>
                     </div>
-                    <div>
-                      <label style={labelStyle}>Promo code (optional)</label>
-                      <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="WELCOME10" className="input" />
-                    </div>
-                    <PayPalButtonsWrapper total={total} onSuccess={(txId) => placeOrder(txId)} />
+                    <PayPalButtonsWrapper total={total} onSuccess={(txId) => placeOrder({ method: 'paypal', reference: txId })} />
                   </div>
                 )}
 
                 <div className="flex gap-4" style={{ marginTop: 24 }}>
                   <button onClick={() => setStep(1)} className="btn-secondary flex-1 justify-center" style={{ padding: '13px' }}>{t('common.back')}</button>
-                  {paymentMethod === 'card' && (
-                    <button onClick={() => placeOrder()} disabled={placingOrder} className="btn-primary flex-1 justify-center" style={{ padding: '13px', gap: 8 }}>
+                  {paymentMethod === 'card' && !stripeEnabled && (
+                    <button onClick={() => placeOrder({ method: 'card' })} disabled={placingOrder} className="btn-primary flex-1 justify-center" style={{ padding: '13px', gap: 8 }}>
                       <CreditCard size={16} />
-                      {placingOrder ? t('checkout.processing') : `${t('checkout.placeOrder')} · ${total.toLocaleString()} MAD`}
+                      {placingOrder ? t('checkout.processing') : `${t('checkout.placeOrder')} · ${total.toLocaleString('fr-MA')} MAD`}
                     </button>
                   )}
                 </div>
@@ -399,6 +429,34 @@ function CheckoutPage() {
                   <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-1)', flexShrink: 0 }}>{(item.price * item.quantity).toLocaleString()} MAD</p>
                 </div>
               ))}
+            </div>
+
+            {/* Promo code */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Promo code (optional)</label>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between" style={{ padding: '10px 12px', borderRadius: 10, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                  <span className="flex items-center gap-2" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#15803d' }}>
+                    <Tag size={14} /> {appliedCoupon.code}
+                  </span>
+                  <button type="button" onClick={removeCoupon} aria-label="Remove coupon" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#15803d', display: 'flex' }}>
+                    <X size={15} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => { if (e.key === 'Enter') applyCoupon() }}
+                    placeholder="WELCOME10"
+                    className="input text-sm flex-1"
+                  />
+                  <button type="button" onClick={applyCoupon} disabled={applyingCoupon || !couponInput.trim()} className="btn-secondary text-sm" style={{ padding: '0 14px' }}>
+                    {applyingCoupon ? '…' : 'Apply'}
+                  </button>
+                </div>
+              )}
             </div>
 
             <div style={{ borderTop: '1.5px solid var(--border-light)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -434,12 +492,11 @@ function CheckoutPage() {
 }
 
 export default function CheckoutPageWithPayPal() {
-  const clientId = import.meta.env.VITE_PAYPAL_CLIENT_ID
-  if (!clientId || clientId === 'YOUR_PAYPAL_SANDBOX_CLIENT_ID') {
+  if (!paypalEnabled) {
     return <CheckoutPage />
   }
   return (
-    <PayPalScriptProvider options={{ 'client-id': clientId, currency: 'USD', components: 'buttons' }}>
+    <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: 'USD', components: 'buttons' }}>
       <CheckoutPage />
     </PayPalScriptProvider>
   )

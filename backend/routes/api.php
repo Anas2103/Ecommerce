@@ -11,23 +11,29 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RecommendationController;
 use App\Http\Controllers\Api\ReturnController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\SellerController;
 use App\Http\Controllers\Api\SellerDocumentController;
 use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
-    // Auth — public
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    // Auth — public (rate limited to slow down brute-force / enumeration)
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    });
 
     // Products — public
     Route::get('/products/featured', [ProductController::class, 'featured']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{slug}', [ProductController::class, 'show']);
     Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews']);
+
+    // Seller storefront — public
+    Route::get('/sellers/{id}', [SellerController::class, 'show'])->whereNumber('id');
 
     // Categories — public
     Route::get('/categories', [CategoryController::class, 'index']);
@@ -50,7 +56,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/cart/coupon', [CartController::class, 'applyCoupon']);
 
     // Chatbot — public
-    Route::post('/chatbot', [ChatbotController::class, 'handle']);
+    Route::post('/chatbot', [ChatbotController::class, 'handle'])->middleware('throttle:30,1');
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -69,6 +75,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/addresses/{address}/set-default', [AddressController::class, 'setDefault']);
 
         // Orders
+        Route::post('/checkout/stripe-intent', [OrderController::class, 'stripeIntent'])->middleware('throttle:20,1');
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/{order}', [OrderController::class, 'show']);
@@ -105,6 +112,7 @@ Route::prefix('v1')->group(function () {
             // Seller verification documents
             Route::get('/seller/documents', [SellerDocumentController::class, 'index']);
             Route::post('/seller/documents', [SellerDocumentController::class, 'store']);
+            Route::get('/seller/documents/{sellerDocument}/download', [SellerDocumentController::class, 'download']);
         });
 
         // Admin routes

@@ -28,6 +28,18 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'paypal' => [
+        'client_id'  => env('PAYPAL_CLIENT_ID'),
+        'secret'     => env('PAYPAL_SECRET'),
+        'mode'       => env('PAYPAL_MODE', 'sandbox'), // sandbox | live
+        'mad_to_usd' => env('PAYPAL_MAD_TO_USD', 10),  // keep in sync with frontend CheckoutPage
+    ],
+
+    'stripe' => [
+        'secret'   => env('STRIPE_SECRET'),          // sk_test_… / sk_live_…
+        'currency' => env('STRIPE_CURRENCY', 'mad'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

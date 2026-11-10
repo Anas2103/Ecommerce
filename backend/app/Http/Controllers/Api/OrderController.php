@@ -4,26 +4,67 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
-use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ShippingMethod;
 use App\Mail\OrderConfirmed;
 use App\Mail\OrderStatusUpdated;
+use App\Services\CheckoutPricing;
+use App\Services\PayPalVerifier;
+use App\Services\StripeGateway;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
-    public function store(Request $request)
+    /**
+     * Creates a Stripe PaymentIntent for the current cart total. The browser confirms the
+     * card with Stripe, then places the order with the intent id as payment_reference.
+     */
+    public function stripeIntent(Request $request, CheckoutPricing $pricing, StripeGateway $stripe)
+    {
+        if (!$stripe->isConfigured()) {
+            return response()->json(['message' => __('Card payments are not configured.')], 503);
+        }
+
+        $data = $request->validate([
+            'shipping_method_id' => 'required|exists:shipping_methods,id',
+            'coupon_code'        => 'nullable|string',
+        ]);
+
+        $user = $request->user();
+        $cart = Cart::where('user_id', $user->id)->with('items')->first();
+        if (!$cart || $cart->items->isEmpty()) {
+            return response()->json(['message' => __('Your cart is empty.')], 422);
+        }
+
+        $quote = $pricing->quote($cart, ShippingMethod::findOrFail($data['shipping_method_id']), $data['coupon_code'] ?? null);
+
+        try {
+            $intent = $stripe->createIntent($quote['total'], $user->id);
+        } catch (\Throwable $e) {
+            Log::error('Stripe intent creation failed', ['user' => $user->id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => __('The payment could not be started. Please try again.')], 502);
+        }
+
+        return response()->json([
+            'client_secret' => $intent['client_secret'],
+            'amount'        => $quote['total'],
+            'currency'      => $stripe->currency(),
+        ]);
+    }
+
+    public function store(Request $request, PayPalVerifier $paypal, StripeGateway $stripe, CheckoutPricing $pricing)
     {
         $data = $request->validate([
             'address_id'         => 'required|exists:addresses,id',
             'shipping_method_id' => 'required|exists:shipping_methods,id',
-            'payment_method'     => 'required|string|max:50',
+            'payment_method'     => 'required|in:card,paypal',
             'payment_reference'  => 'nullable|string|max:255',
             'coupon_code'        => 'nullable|string',
             'notes'              => 'nullable|string|max:500',
@@ -33,35 +74,43 @@ class OrderController extends Controller
         $address = $user->addresses()->findOrFail($data['address_id']);
         $shippingMethod = \App\Models\ShippingMethod::findOrFail($data['shipping_method_id']);
 
-        $cart = Cart::where('user_id', $user->id)->with('items.product')->firstOrFail();
+        $cart = Cart::where('user_id', $user->id)->with('items.product.images')->firstOrFail();
 
         if ($cart->items->isEmpty()) {
-            return response()->json(['message' => 'Votre panier est vide.'], 422);
+            return response()->json(['message' => __('Your cart is empty.')], 422);
         }
 
         foreach ($cart->items as $item) {
             if (!$item->product || $item->product->stock < $item->quantity) {
                 return response()->json([
-                    'message' => "Stock insuffisant pour: {$item->product?->name}",
+                    'message' => __('Not enough stock for: :name', ['name' => $item->product?->name]),
                 ], 422);
             }
         }
 
-        $subtotal = $cart->items->sum(fn($i) => $i->price * $i->quantity);
-        $discountAmount = 0;
-        $coupon = null;
+        $quote = $pricing->quote($cart, $shippingMethod, $data['coupon_code'] ?? null);
+        ['subtotal' => $subtotal, 'discount' => $discountAmount, 'shipping' => $shippingAmount,
+         'tax' => $taxAmount, 'total' => $total, 'coupon' => $coupon] = $quote;
 
-        if (!empty($data['coupon_code'])) {
-            $coupon = Coupon::where('code', strtoupper($data['coupon_code']))->first();
-            if ($coupon && $coupon->isValid($subtotal)) {
-                $discountAmount = $coupon->calculateDiscount($subtotal);
-            }
+        // Never trust the client's claim that it paid: confirm with the payment provider.
+        $reference = $data['payment_reference'] ?? null;
+        if ($reference && Order::where('payment_reference', $reference)->exists()) {
+            return response()->json(['message' => __('This payment has already been used.')], 422);
         }
 
-        $shippingAmount = (float) $shippingMethod->price;
-        $taxableAmount = $subtotal - $discountAmount + $shippingAmount;
-        $taxAmount = round($taxableAmount * 0.20, 2);
-        $total = round($taxableAmount + $taxAmount, 2);
+        $isPaid = false;
+        if ($data['payment_method'] === 'paypal' && $reference) {
+            $isPaid = $paypal->verify($reference, $total);
+            if (!$isPaid && $paypal->isConfigured()) {
+                return response()->json(['message' => __('The payment could not be confirmed.')], 422);
+            }
+        } elseif ($data['payment_method'] === 'card' && $stripe->isConfigured()) {
+            $isPaid = $reference && $stripe->verify($reference, $total, $user->id);
+            if (!$isPaid) {
+                return response()->json(['message' => __('The payment could not be confirmed.')], 422);
+            }
+        }
+        // Provider not configured (demo mode): the order is kept but stays "pending".
 
         DB::beginTransaction();
         try {
@@ -71,7 +120,7 @@ class OrderController extends Controller
                 'address_id'         => $address->id,
                 'shipping_method_id' => $shippingMethod->id,
                 'status'             => 'confirmed',
-                'payment_status'     => ($data['payment_method'] === 'paypal' && !empty($data['payment_reference'])) ? 'paid' : 'pending',
+                'payment_status'     => $isPaid ? 'paid' : 'pending',
                 'payment_method'     => $data['payment_method'],
                 'payment_reference'  => $data['payment_reference'] ?? null,
                 'subtotal'           => $subtotal,
@@ -80,7 +129,7 @@ class OrderController extends Controller
                 'tax_amount'         => $taxAmount,
                 'total'              => $total,
                 'notes'              => $data['notes'] ?? null,
-                'paid_at'            => ($data['payment_method'] === 'paypal' && !empty($data['payment_reference'])) ? now() : null,
+                'paid_at'            => $isPaid ? now() : null,
             ]);
 
             foreach ($cart->items as $item) {
@@ -95,7 +144,13 @@ class OrderController extends Controller
                     'total'           => round($item->price * $item->quantity, 2),
                 ]);
 
-                $item->product->decrement('stock', $item->quantity);
+                // Conditional decrement: fails instead of overselling if a concurrent order took the stock.
+                $updated = Product::whereKey($item->product->id)
+                    ->where('stock', '>=', $item->quantity)
+                    ->decrement('stock', $item->quantity);
+                if (!$updated) {
+                    throw new \RuntimeException('OUT_OF_STOCK:' . $item->product->name);
+                }
             }
 
             if ($coupon) {
@@ -110,17 +165,21 @@ class OrderController extends Controller
             DB::commit();
 
             try {
-                Mail::to($user->email)->send(new OrderConfirmed($order->load(['items', 'user'])));
+                Mail::to($user->email)->locale($user->preferred_language ?: config('app.locale'))->send(new OrderConfirmed($order->load(['items', 'user'])));
             } catch (\Exception $e) {}
 
             return response()->json([
                 'data'    => $order->load(['items', 'address', 'shippingMethod']),
-                'message' => 'Commande passée avec succès.',
+                'message' => __('Order placed successfully.'),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Erreur lors de la création de la commande: ' . $e->getMessage()], 500);
+            if (str_starts_with($e->getMessage(), 'OUT_OF_STOCK:')) {
+                return response()->json(['message' => __('Not enough stock for: :name', ['name' => substr($e->getMessage(), 13)])], 422);
+            }
+            Log::error('Order creation failed', ['user' => $user->id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => __('The order could not be created. Please try again.')], 500);
         }
     }
 
@@ -159,7 +218,7 @@ class OrderController extends Controller
     {
         $user = $request->user();
         if (!$user->isAdmin() && $order->user_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $order->load(['items.product.images', 'address', 'shippingMethod', 'user:id,name,email']);
@@ -172,6 +231,13 @@ class OrderController extends Controller
             'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled,refunded',
         ]);
 
+        // Put stock back when an admin cancels an order (only on the transition, never twice).
+        if ($data['status'] === 'cancelled' && $order->status !== 'cancelled') {
+            foreach ($order->items as $item) {
+                $item->product?->increment('stock', $item->quantity);
+            }
+        }
+
         $updates = ['status' => $data['status']];
         if ($data['status'] === 'shipped' && !$order->shipped_at) {
             $updates['shipped_at'] = now();
@@ -183,7 +249,7 @@ class OrderController extends Controller
         $order->update($updates);
 
         try {
-            Mail::to($order->user->email)->send(new OrderStatusUpdated($order->load('user')));
+            Mail::to($order->user->email)->locale($order->user->preferred_language ?: config('app.locale'))->send(new OrderStatusUpdated($order->load('user')));
         } catch (\Exception $e) {}
 
         return response()->json(['data' => $order->fresh()]);
@@ -193,11 +259,11 @@ class OrderController extends Controller
     {
         $user = $request->user();
         if (!$user->isAdmin() && $order->user_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         if (!$order->canBeCancelled()) {
-            return response()->json(['message' => 'Cette commande ne peut pas être annulée.'], 422);
+            return response()->json(['message' => __('This order can no longer be cancelled.')], 422);
         }
 
         foreach ($order->items as $item) {
@@ -207,31 +273,33 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => 'cancelled']);
-        return response()->json(['data' => $order->fresh(), 'message' => 'Commande annulée.']);
+        return response()->json(['data' => $order->fresh(), 'message' => __('Order cancelled.')]);
     }
 
     public function downloadInvoice(Request $request, Order $order)
     {
         $user = $request->user();
         if (!$user->isAdmin() && $order->user_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
-        if (!$order->invoice_path || !Storage::disk('public')->exists($order->invoice_path)) {
+        if (!$order->invoice_path || !Storage::disk('local')->exists($order->invoice_path)) {
             $path = $this->generateInvoice($order);
             $order->update(['invoice_path' => $path]);
         }
 
-        return response()->download(storage_path('app/public/' . $order->invoice_path));
+        return Storage::disk('local')->download($order->invoice_path, $order->order_number . '.pdf');
     }
 
     public function sellerOrders(Request $request)
     {
         $user = $request->user();
 
-        $query = Order::with(['user:id,name,email', 'items'])
+        // Only expose this seller's own line items (not other sellers' products in the same order).
+        $ownItems = fn ($q) => $q->whereHas('product', fn ($p) => $p->where('seller_id', $user->id));
+        $query = Order::with(['user:id,name,email', 'items' => $ownItems])
             ->whereHas('items.product', fn($q) => $q->where('seller_id', $user->id))
-            ->withCount('items');
+            ->withCount(['items' => $ownItems]);
 
         if ($status = $request->get('status')) {
             $query->where('status', $status);
@@ -252,10 +320,20 @@ class OrderController extends Controller
     private function generateInvoice(Order $order): string
     {
         $order->load(['items', 'address', 'shippingMethod', 'user']);
-        $pdf = Pdf::loadView('invoices.invoice', ['order' => $order]);
+
+        // Render in the customer's language (DomPDF can't shape Arabic, so Arabic falls back to English).
+        $locale = in_array($order->user?->preferred_language, ['en', 'fr'], true) ? $order->user->preferred_language : 'en';
+        $previous = app()->getLocale();
+        app()->setLocale($locale);
+        try {
+            $pdf = Pdf::loadView('invoices.invoice', ['order' => $order]);
+            $pdf->output(); // render now, while the locale is set
+        } finally {
+            app()->setLocale($previous);
+        }
+        // Private disk: invoices contain names and addresses, so they must not be publicly reachable.
         $path = 'invoices/' . $order->order_number . '.pdf';
-        Storage::disk('public')->makeDirectory('invoices');
-        Storage::disk('public')->put($path, $pdf->output());
+        Storage::disk('local')->put($path, $pdf->output());
         return $path;
     }
 }
