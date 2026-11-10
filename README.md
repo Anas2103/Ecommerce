@@ -6,8 +6,6 @@
 ![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?logo=php&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> **DOWFS201 — Projet de synthèse** · Formateur : Khalid MZIBRA
-
 A multi-vendor online store built with **Laravel 12** (REST API) and **React 19** (SPA).
 Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shops, and admins moderate the marketplace — in **English, French and Arabic** (right-to-left).
 
