@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { LayoutDashboard, Package, ShoppingCart, Users, Tag, LogOut, Home } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Tag, Star, RotateCcw, ShieldCheck, LogOut, Home } from 'lucide-react'
 import { logoutUser } from '../store/authSlice'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 
 const navItems = [
   { to: '/admin/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
@@ -9,6 +11,9 @@ const navItems = [
   { to: '/admin/orders',     icon: ShoppingCart,    label: 'Orders' },
   { to: '/admin/users',      icon: Users,           label: 'Users' },
   { to: '/admin/categories', icon: Tag,             label: 'Categories' },
+  { to: '/admin/reviews',    icon: Star,            label: 'Reviews' },
+  { to: '/admin/returns',    icon: RotateCcw,       label: 'Returns' },
+  { to: '/admin/sellers',    icon: ShieldCheck,     label: 'Seller verification' },
 ]
 
 export default function AdminLayout() {
@@ -107,7 +112,9 @@ export default function AdminLayout() {
       {/* Main */}
       <main className="flex-1 overflow-y-auto" style={{ background: 'var(--bg-page)' }}>
         <div style={{ padding: '24px 20px' }}>
-          <Outlet />
+          <Suspense fallback={<LoadingSpinner center size="lg" />}>
+            <Outlet />
+          </Suspense>
         </div>
       </main>
     </div>

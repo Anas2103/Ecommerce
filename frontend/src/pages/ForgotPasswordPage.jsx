@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await api.post('/auth/forgot-password', { email })
+      await api.post('/forgot-password', { email })
       setSent(true)
       toast.success('Reset email sent')
     } catch (err) {

@@ -9,35 +9,38 @@ const STATUS_STYLES = {
   rejected: { bg: '#fff1f2', color: '#ef4444',  border: '#fecaca', label: 'Rejected' },
 }
 
-const DEMO_RETURNS = [
-  { id: 1, order_number: 'ORD-1042', product_name: 'Samsung Galaxy A54', reason: 'defective', description: 'Screen has a dead pixel', status: 'pending', customer: 'Youssef B.', created_at: new Date(Date.now() - 2 * 86400000).toISOString() },
-  { id: 2, order_number: 'ORD-1035', product_name: 'Nike Air Max 270', reason: 'wrong_item', description: 'Received size 43 instead of 42', status: 'approved', customer: 'Fatima Z.', created_at: new Date(Date.now() - 5 * 86400000).toISOString() },
-  { id: 3, order_number: 'ORD-1020', product_name: 'JBL Soundbar', reason: 'not_as_described', description: 'Remote not included as listed', status: 'rejected', customer: 'Omar K.', created_at: new Date(Date.now() - 10 * 86400000).toISOString() },
-]
+// The API nests related records; flatten them for display.
+const normalize = (r) => ({
+  ...r,
+  order_number: r.order?.order_number ?? r.order_number,
+  product_name: r.order_item?.product_name ?? r.product_name ?? 'Whole order',
+  customer: r.user?.name ?? r.customer,
+})
 
-export default function SellerReturns() {
+/** Return requests list — used by sellers (own products) and admins (all returns). */
+export default function SellerReturns({ apiBase = '/seller/returns', subtitle = 'Returns for orders that contain your products.' }) {
   const [returns, setReturns] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [expanded, setExpanded] = useState(null)
 
   useEffect(() => {
-    api.get('/seller/returns').then(({ data }) => setReturns(data.data || [])).catch(() => {
-      const local = JSON.parse(localStorage.getItem('seller_returns') || '[]')
-      setReturns(local.length ? local : DEMO_RETURNS)
-    }).finally(() => setLoading(false))
-  }, [])
+    let stale = false
+    api.get(apiBase)
+      .then(({ data }) => { if (!stale) setReturns((data.data || []).map(normalize)) })
+      .catch(() => { if (!stale) toast.error('Could not load return requests') })
+      .finally(() => { if (!stale) setLoading(false) })
+    return () => { stale = true }
+  }, [apiBase])
 
   const handleAction = async (id, action) => {
     try {
-      await api.patch(`/seller/returns/${id}`, { status: action })
-    } catch {
-      const local = JSON.parse(localStorage.getItem('seller_returns') || JSON.stringify(returns))
-      const updated = local.map((r) => r.id === id ? { ...r, status: action } : r)
-      localStorage.setItem('seller_returns', JSON.stringify(updated))
+      await api.patch(`${apiBase}/${id}`, { status: action })
+      setReturns((prev) => prev.map((r) => r.id === id ? { ...r, status: action } : r))
+      toast.success(`Return ${action}`)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not update the return')
     }
-    setReturns((prev) => prev.map((r) => r.id === id ? { ...r, status: action } : r))
-    toast.success(`Return ${action}!`)
   }
 
   const displayed = filter ? returns.filter((r) => r.status === filter) : returns
@@ -54,7 +57,10 @@ export default function SellerReturns() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div style={{ width: 4, height: 32, background: 'var(--primary)', borderRadius: 3, flexShrink: 0 }} />
-          <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>Return Requests</h1>
+          <div>
+            <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)', margin: 0 }}>Return Requests</h1>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-3)', margin: '4px 0 0' }}>{subtitle}</p>
+          </div>
         </div>
       </div>
 

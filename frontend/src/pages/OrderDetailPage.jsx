@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Package, Download, XCircle, ChevronRight, Truck, CreditCard, MapPin, CheckCircle2, Clock, RotateCcw } from 'lucide-react'
+import { Package, Download, XCircle, ChevronRight, Truck, CreditCard, MapPin, CheckCircle2, RotateCcw } from 'lucide-react'
 import api from '../services/api'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
+import ReturnRequestModal from '../components/ReturnRequestModal'
+import StatusBadge from '../components/ui/StatusBadge'
 
 const STATUS_BADGE = { pending: 'badge-yellow', confirmed: 'badge-blue', processing: 'badge-indigo', shipped: 'badge-purple', delivered: 'badge-green', cancelled: 'badge-red', refunded: 'badge-gray' }
 
@@ -14,10 +16,18 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [cancelling, setCancelling] = useState(false)
+  const [returns, setReturns] = useState([])
+  const [returnItem, setReturnItem] = useState(null)
 
   useEffect(() => {
-    api.get(`/orders/${id}`).then(({ data }) => setOrder(data.data)).finally(() => setLoading(false))
+    let stale = false
+    api.get(`/orders/${id}`).then(({ data }) => { if (!stale) setOrder(data.data) }).finally(() => { if (!stale) setLoading(false) })
+    // Existing return requests, to show their status next to each item.
+    api.get('/returns').then(({ data }) => { if (!stale) setReturns((data.data || []).filter((r) => String(r.order_id) === String(id))) }).catch(() => {})
+    return () => { stale = true }
   }, [id])
+
+  const returnFor = (item) => returns.find((r) => r.order_item_id === item.id)
 
   const cancelOrder = async () => {
     if (!window.confirm(t('orders.cancelConfirm'))) return
@@ -113,7 +123,16 @@ export default function OrderDetailPage() {
                       <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-1)', margin: 0 }}>{item.product_name}</p>
                       <p style={{ fontSize: '0.8125rem', color: 'var(--text-3)', margin: '2px 0 0' }}>×{item.quantity} · {Number(item.price).toLocaleString()} MAD</p>
                     </div>
-                    <p style={{ fontWeight: 700, color: 'var(--text-1)', fontSize: '0.875rem' }}>{Number(item.total).toLocaleString()} MAD</p>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontWeight: 700, color: 'var(--text-1)', fontSize: '0.875rem', margin: 0 }}>{Number(item.total).toLocaleString()} MAD</p>
+                      {order.status === 'delivered' && (returnFor(item) ? (
+                        <div style={{ marginTop: 6 }}><StatusBadge status={returnFor(item).status} label={`Return ${returnFor(item).status}`} /></div>
+                      ) : (
+                        <button type="button" className="btn-sm" style={{ marginTop: 6 }} onClick={() => setReturnItem(item)}>
+                          <RotateCcw size={12} /> Request return
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -249,6 +268,7 @@ export default function OrderDetailPage() {
         </div>
 
       </div>
+      <ReturnRequestModal order={order} item={returnItem} onClose={() => setReturnItem(null)} onCreated={(r) => setReturns((prev) => [...prev, r])} />
     </div>
   )
 }
