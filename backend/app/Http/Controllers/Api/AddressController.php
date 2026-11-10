@@ -39,10 +39,18 @@ class AddressController extends Controller
         return response()->json(['data' => $address], 201);
     }
 
+    public function show(Request $request, Address $address)
+    {
+        if ($address->user_id !== $request->user()->id) {
+            return response()->json(['message' => __('Forbidden.')], 403);
+        }
+        return response()->json(['data' => $address]);
+    }
+
     public function update(Request $request, Address $address)
     {
         if ($address->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $data = $request->validate([
@@ -63,7 +71,7 @@ class AddressController extends Controller
     public function destroy(Request $request, Address $address)
     {
         if ($address->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $address->delete();
@@ -72,18 +80,18 @@ class AddressController extends Controller
             $request->user()->addresses()->first()?->update(['is_default' => true]);
         }
 
-        return response()->json(['message' => 'Adresse supprimée.']);
+        return response()->json(['message' => __('Address deleted.')]);
     }
 
     public function setDefault(Request $request, Address $address)
     {
         if ($address->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $request->user()->addresses()->update(['is_default' => false]);
         $address->update(['is_default' => true]);
 
-        return response()->json(['data' => $address, 'message' => 'Adresse par défaut mise à jour.']);
+        return response()->json(['data' => $address, 'message' => __('Default address updated.')]);
     }
 }

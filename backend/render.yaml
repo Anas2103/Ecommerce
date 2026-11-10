@@ -1,3 +1,4 @@
+# Reference of the Render settings for the API (the README walks through creating the service in the dashboard).
 services:
   - type: web
     name: ecommerce-backend
@@ -30,5 +31,24 @@ services:
         value: public
       - key: FRONTEND_URL
         value: https://frontend-anas2103-projects.vercel.app
+      # Paste the output of `php artisan key:generate --show` (must start with base64:)
       - key: APP_KEY
-        generateValue: true
+        sync: false
+      - key: LOG_LEVEL
+        value: warning
+      - key: SANCTUM_EXPIRATION
+        value: "10080"
+      # Seed demo data into an empty database on boot (the free plan's SQLite file is wiped on redeploy).
+      - key: SEED_ON_BOOT
+        value: "true"
+      # Set these in the Render dashboard — never commit them.
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_SECRET
+        sync: false
+      - key: PAYPAL_MODE
+        value: sandbox
+      - key: STRIPE_SECRET
+        sync: false

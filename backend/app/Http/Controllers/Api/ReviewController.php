@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ReviewController extends Controller
 {
@@ -13,7 +14,8 @@ class ReviewController extends Controller
     {
         $data = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'order_id'   => 'nullable|exists:orders,id',
+            // A review can only be linked to one of the reviewer's own orders.
+            'order_id'   => ['nullable', Rule::exists('orders', 'id')->where('user_id', $request->user()->id)],
             'rating'     => 'required|integer|min:1|max:5',
             'title'      => 'nullable|string|max:100',
             'comment'    => 'nullable|string|max:1000',
@@ -22,7 +24,7 @@ class ReviewController extends Controller
         $user = $request->user();
         $existing = Review::where('user_id', $user->id)->where('product_id', $data['product_id'])->first();
         if ($existing) {
-            return response()->json(['message' => 'Vous avez déjà évalué ce produit.'], 422);
+            return response()->json(['message' => __('You have already reviewed this product.')], 422);
         }
 
         $review = Review::create(array_merge($data, [
@@ -36,7 +38,7 @@ class ReviewController extends Controller
     public function update(Request $request, Review $review)
     {
         if ($review->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $data = $request->validate([
@@ -45,7 +47,8 @@ class ReviewController extends Controller
             'comment' => 'nullable|string|max:1000',
         ]);
 
-        $review->update($data);
+        // Edited text must go through moderation again.
+        $review->update($data + ['is_approved' => false]);
         return response()->json(['data' => $review]);
     }
 
@@ -53,11 +56,11 @@ class ReviewController extends Controller
     {
         $user = $request->user();
         if (!$user->isAdmin() && $review->user_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $review->delete();
-        return response()->json(['message' => 'Avis supprimé.']);
+        return response()->json(['message' => __('Review deleted.')]);
     }
 
     public function productReviews(Product $product)

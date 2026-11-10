@@ -35,7 +35,7 @@ class CartController extends Controller
     public function show(Request $request)
     {
         $cart = $this->getOrCreateCart($request);
-        $cart->load(['items.product' => fn($q) => $q->with('images')]);
+        $cart->load(['items.product.images']);
 
         $items = $cart->items->map(fn($item) => [
             'id'              => $item->id,
@@ -75,11 +75,11 @@ class CartController extends Controller
         $product = Product::findOrFail($data['product_id']);
 
         if (!$product->is_active) {
-            return response()->json(['message' => 'Produit non disponible.'], 422);
+            return response()->json(['message' => __('This product is not available.')], 422);
         }
 
         if ($product->stock < $data['quantity']) {
-            return response()->json(['message' => "Stock insuffisant. Disponible: {$product->stock}"], 422);
+            return response()->json(['message' => __('Not enough stock. Available: :count', ['count' => $product->stock])], 422);
         }
 
         $cart = $this->getOrCreateCart($request);
@@ -88,7 +88,7 @@ class CartController extends Controller
         if ($existing) {
             $newQty = $existing->quantity + $data['quantity'];
             if ($product->stock < $newQty) {
-                return response()->json(['message' => "Stock insuffisant. Disponible: {$product->stock}"], 422);
+                return response()->json(['message' => __('Not enough stock. Available: :count', ['count' => $product->stock])], 422);
             }
             $existing->update(['quantity' => $newQty]);
         } else {
@@ -102,12 +102,19 @@ class CartController extends Controller
         return $this->show($request);
     }
 
+    private function ensureOwnsItem(Request $request, CartItem $item): void
+    {
+        // Without this check any client could modify another user's cart item by id.
+        abort_unless((int) $item->cart_id === (int) $this->getOrCreateCart($request)->id, 404);
+    }
+
     public function updateItem(Request $request, CartItem $item)
     {
+        $this->ensureOwnsItem($request, $item);
         $data = $request->validate(['quantity' => 'required|integer|min:1']);
 
         if ($item->product->stock < $data['quantity']) {
-            return response()->json(['message' => "Stock insuffisant. Disponible: {$item->product->stock}"], 422);
+            return response()->json(['message' => __('Not enough stock. Available: :count', ['count' => $item->product->stock])], 422);
         }
 
         $item->update(['quantity' => $data['quantity']]);
@@ -116,6 +123,7 @@ class CartController extends Controller
 
     public function removeItem(Request $request, CartItem $item)
     {
+        $this->ensureOwnsItem($request, $item);
         $item->delete();
         return $this->show($request);
     }
@@ -133,20 +141,20 @@ class CartController extends Controller
 
         $coupon = Coupon::where('code', strtoupper($data['code']))->first();
         if (!$coupon) {
-            return response()->json(['message' => 'Code coupon invalide.'], 422);
+            return response()->json(['message' => __('Invalid coupon code.')], 422);
         }
 
         $cart = $this->getOrCreateCart($request);
         $subtotal = $cart->items->sum(fn($i) => $i->price * $i->quantity);
 
         if (!$coupon->isValid($subtotal)) {
-            return response()->json(['message' => 'Ce coupon n\'est pas applicable à votre commande.'], 422);
+            return response()->json(['message' => __('This coupon cannot be applied to your order.')], 422);
         }
 
         $discount = $coupon->calculateDiscount($subtotal);
 
         return response()->json([
-            'message'   => 'Coupon appliqué avec succès.',
+            'message'   => __('Coupon applied.'),
             'coupon'    => $coupon,
             'discount'  => $discount,
             'subtotal'  => $subtotal,

@@ -16,14 +16,30 @@ artisan() {
     su -s /bin/bash www-data -c "cd /var/www/html && php artisan $*"
 }
 
+# Start from fresh config so env vars (e.g. ADMIN_PASSWORD) are read at seed time
+artisan "config:clear"
+
 # Run migrations (required)
 artisan "migrate --force"
 
-# Seed (optional — don't fail if seeders error)
-artisan "db:seed --force" || echo "[warn] seeder skipped"
+# Seed demo data only when asked to, and only into an empty database
+# (never re-seed over real data on restart).
+if [ "${SEED_ON_BOOT:-false}" = "true" ]; then
+    USERS=$(su -s /bin/bash www-data -c "cd /var/www/html && php artisan tinker --execute='echo \App\Models\User::count();'" | tail -n1)
+    if [ "$USERS" = "0" ]; then
+        artisan "db:seed --force"
+    else
+        echo "[info] database already has data — skipping seed"
+    fi
+fi
 
 # Link public storage (ignore if already linked)
 artisan "storage:link" || true
+
+# Cache configuration, routes and views for production performance
+artisan "config:cache"
+artisan "route:cache"
+artisan "view:cache"
 
 # Start Apache
 exec apache2-foreground

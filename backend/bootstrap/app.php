@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
         $middleware->appendToGroup('api', \App\Http\Middleware\SetLocale::class);
+        $middleware->appendToGroup('api', \App\Http\Middleware\SecurityHeaders::class);
+        // Render/Vercel terminate HTTPS at a proxy; trust it so generated URLs use https://.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -110,22 +110,34 @@ class AdminController extends Controller
             'role'      => 'sometimes|in:admin,seller,client',
         ]);
 
+        // Prevent an admin from locking themselves out.
+        if ($user->is($request->user()) && (($data['is_active'] ?? true) === false || ($data['role'] ?? 'admin') !== 'admin')) {
+            return response()->json(['message' => __('You cannot deactivate or demote your own account.')], 422);
+        }
+
         $user->update($data);
+
+        // Deactivation or a role change takes effect immediately: existing logins are revoked.
+        if ($user->wasChanged(['is_active', 'role'])) {
+            $user->tokens()->delete();
+        }
+
         return response()->json(['data' => $user]);
     }
 
     public function destroyUser(User $user)
     {
         if ($user->isAdmin()) {
-            return response()->json(['message' => 'Impossible de supprimer un administrateur.'], 422);
+            return response()->json(['message' => __('An administrator cannot be deleted.')], 422);
         }
+        $user->tokens()->delete();
         $user->delete();
-        return response()->json(['message' => 'Utilisateur supprimé.']);
+        return response()->json(['message' => __('User deleted.')]);
     }
 
     public function products(Request $request)
     {
-        $query = Product::with(['category:id,name', 'seller:id,name'])->withCount('orderItems');
+        $query = Product::with(['images', 'category:id,name', 'seller:id,name'])->withRating()->withCount('orderItems');
 
         if ($search = $request->get('search')) {
             $query->search($search);
@@ -188,7 +200,7 @@ class AdminController extends Controller
 
     public function reviews(Request $request)
     {
-        $query = Review::with(['user:id,name', 'product:id,name']);
+        $query = Review::with(['user:id,name', 'product:id,name,slug']);
 
         if ($request->has('is_approved')) {
             $query->where('is_approved', $request->boolean('is_approved'));
@@ -205,6 +217,6 @@ class AdminController extends Controller
     public function approveReview(Review $review)
     {
         $review->update(['is_approved' => !$review->is_approved]);
-        return response()->json(['data' => $review, 'message' => 'Statut de l\'avis mis à jour.']);
+        return response()->json(['data' => $review, 'message' => __('Review status updated.')]);
     }
 }

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -12,14 +13,15 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Admin',
-            'email' => 'admin@ecommerce.com',
-            'password' => Hash::make('password'),
+            'email' => env('ADMIN_EMAIL', 'admin@ecommerce.com'),
+            'password' => Hash::make($this->adminPassword()),
             'role' => 'admin',
             'phone' => '+212600000001',
             'is_active' => true,
             'preferred_language' => 'fr',
         ]);
 
+        // Demo accounts (password: "password") so visitors can try the seller and client areas.
         User::create([
             'name' => 'Seller Demo',
             'email' => 'seller@ecommerce.com',
@@ -39,5 +41,23 @@ class UserSeeder extends Seeder
             'is_active' => true,
             'preferred_language' => 'fr',
         ]);
+    }
+
+    /**
+     * The admin password is public in this repository's README for local use only.
+     * Outside local/testing it must come from ADMIN_PASSWORD; otherwise a random one is generated.
+     */
+    private function adminPassword(): string
+    {
+        if ($password = env('ADMIN_PASSWORD')) {
+            return $password;
+        }
+        if (app()->environment('local', 'testing')) {
+            return 'password';
+        }
+
+        $password = Str::password(20);
+        $this->command?->warn("ADMIN_PASSWORD not set — generated admin password: {$password}");
+        return $password;
     }
 }

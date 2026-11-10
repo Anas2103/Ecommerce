@@ -43,7 +43,7 @@ class ReturnController extends Controller
         $order = Order::where('id', $data['order_id'])->where('user_id', $user->id)->firstOrFail();
 
         if ($order->status !== 'delivered') {
-            return response()->json(['message' => 'Seules les commandes livrées peuvent faire l\'objet d\'un retour.'], 422);
+            return response()->json(['message' => __('Only delivered orders can be returned.')], 422);
         }
 
         $existing = ReturnRequest::where('order_id', $order->id)
@@ -53,7 +53,7 @@ class ReturnController extends Controller
             ->exists();
 
         if ($existing) {
-            return response()->json(['message' => 'Une demande de retour existe déjà pour cet article.'], 422);
+            return response()->json(['message' => __('A return request already exists for this item.')], 422);
         }
 
         $return = ReturnRequest::create([
@@ -65,7 +65,7 @@ class ReturnController extends Controller
             'status'        => 'pending',
         ]);
 
-        return response()->json(['data' => $return, 'message' => 'Demande de retour soumise.'], 201);
+        return response()->json(['data' => $return, 'message' => __('Return request submitted.')], 201);
     }
 
     public function update(Request $request, ReturnRequest $returnRequest)
@@ -73,7 +73,17 @@ class ReturnController extends Controller
         $user = $request->user();
 
         if (!$user->isAdmin() && !$user->isSeller()) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
+        }
+
+        // A seller may only handle returns for orders that contain their own products.
+        if ($user->isSeller()) {
+            $ownsReturn = $returnRequest->order()
+                ->whereHas('items.product', fn ($q) => $q->where('seller_id', $user->id))
+                ->exists();
+            if (!$ownsReturn) {
+                return response()->json(['message' => __('Forbidden.')], 403);
+            }
         }
 
         $data = $request->validate([
@@ -83,6 +93,6 @@ class ReturnController extends Controller
 
         $returnRequest->update($data);
 
-        return response()->json(['data' => $returnRequest->fresh(), 'message' => 'Statut mis à jour.']);
+        return response()->json(['data' => $returnRequest->fresh(), 'message' => __('Status updated.')]);
     }
 }
