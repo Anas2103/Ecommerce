@@ -41,8 +41,9 @@ class Product extends Model
 
     public function getPrimaryImageUrlAttribute(): string
     {
-        $primary = $this->images()->where('is_primary', true)->first()
-            ?? $this->images()->orderBy('sort_order')->first();
+        // Use eager-loaded images when available to avoid an N+1 query per product.
+        $images = $this->relationLoaded('images') ? $this->images : $this->images()->get();
+        $primary = $images->firstWhere('is_primary', true) ?? $images->sortBy('sort_order')->first();
 
         return $primary
             ? url('storage/' . $primary->image_path)
@@ -51,6 +52,10 @@ class Product extends Model
 
     public function getAverageRatingAttribute(): float
     {
+        // Populated by scopeWithRating() — avoids one AVG query per product in listings.
+        if (array_key_exists('avg_rating', $this->attributes)) {
+            return round((float) $this->attributes['avg_rating'], 1);
+        }
         return round($this->reviews()->where('is_approved', true)->avg('rating') ?? 0, 1);
     }
 
@@ -62,6 +67,11 @@ class Product extends Model
     public function scopeActive($query) { return $query->where('is_active', true); }
     public function scopeFeatured($query) { return $query->where('is_featured', true); }
     public function scopeInStock($query) { return $query->where('stock', '>', 0); }
+    public function scopeWithRating($query)
+    {
+        return $query->withAvg(['reviews as avg_rating' => fn ($q) => $q->where('is_approved', true)], 'rating');
+    }
+
     public function scopeSearch($query, string $term)
     {
         return $query->where(function ($q) use ($term) {

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Download, Trash2, CheckSquare, Square } from 'lucide-react'
+import { Download, CheckSquare, Square } from 'lucide-react'
 import api from '../../services/api'
 import Pagination from '../../components/ui/Pagination'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import useDebounce from '../../hooks/useDebounce'
 
 function exportCSV(rows) {
   const headers = ['Order #', 'Customer', 'Email', 'Date', 'Status', 'Total (MAD)']
@@ -31,10 +32,13 @@ const STATUS_STYLES = {
 export default function AdminOrders() {
   const [orders, setOrders] = useState([])
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 })
-  const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const debouncedSearch = useDebounce(search)
+  const fetchKey = `${statusFilter}|${debouncedSearch}|${page}`
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
   const [selected, setSelected] = useState(new Set())
   const [bulkStatus, setBulkStatus] = useState('')
 
@@ -53,11 +57,12 @@ export default function AdminOrders() {
   }
 
   useEffect(() => {
-    setLoading(true)
-    api.get('/admin/orders', { params: { status: statusFilter || undefined, search: search || undefined, page } })
-      .then(({ data }) => { setOrders(data.data); setMeta(data.meta) })
-      .finally(() => setLoading(false))
-  }, [statusFilter, search, page])
+    let stale = false
+    api.get('/admin/orders', { params: { status: statusFilter || undefined, search: debouncedSearch || undefined, page } })
+      .then(({ data }) => { if (!stale) { setOrders(data.data); setMeta(data.meta) } })
+      .finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [statusFilter, debouncedSearch, page, fetchKey])
 
   const updateStatus = async (order, status) => {
     try {

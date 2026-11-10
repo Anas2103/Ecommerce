@@ -5,14 +5,17 @@ import themeReducer from './themeSlice'
 import uiReducer from './uiSlice'
 import compareReducer from './compareSlice'
 
-const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    cart: cartReducer,
-    theme: themeReducer,
-    ui: uiReducer,
-    compare: compareReducer,
-  },
-})
+export const reducer = {
+  auth: authReducer,
+  cart: cartReducer,
+  theme: themeReducer,
+  ui: uiReducer,
+  compare: compareReducer,
+}
+
+/** Factory so tests can create an isolated store. */
+export const makeStore = (preloadedState) => configureStore({ reducer, preloadedState })
+
+const store = makeStore()
 
 export default store

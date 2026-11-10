@@ -4,6 +4,7 @@ import api from '../../services/api'
 import Pagination from '../../components/ui/Pagination'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import useDebounce from '../../hooks/useDebounce'
 
 function exportCSV(rows) {
   const headers = ['Name', 'SKU', 'Category', 'Price (MAD)', 'Stock', 'Sold', 'Status']
@@ -19,9 +20,12 @@ function exportCSV(rows) {
 export default function AdminProducts() {
   const [products, setProducts] = useState([])
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 })
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const debouncedSearch = useDebounce(search)
+  const fetchKey = `${debouncedSearch}|${page}`
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
   const [selected, setSelected] = useState(new Set())
 
   const allSelected = products.length > 0 && products.every((p) => selected.has(p.id))
@@ -47,16 +51,13 @@ export default function AdminProducts() {
     } catch { toast.error('Error') }
   }
 
-  const load = async () => {
-    setLoading(true)
-    try {
-      const { data } = await api.get('/admin/products', { params: { search: search || undefined, page } })
-      setProducts(data.data)
-      setMeta(data.meta)
-    } finally { setLoading(false) }
-  }
-
-  useEffect(() => { load() }, [page, search])
+  useEffect(() => {
+    let stale = false
+    api.get('/admin/products', { params: { search: debouncedSearch || undefined, page } })
+      .then(({ data }) => { if (!stale) { setProducts(data.data); setMeta(data.meta) } })
+      .finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [debouncedSearch, page, fetchKey])
 
   const toggleActive = async (product) => {
     try {

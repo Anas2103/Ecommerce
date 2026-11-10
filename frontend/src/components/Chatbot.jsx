@@ -212,9 +212,13 @@ export default function Chatbot() {
     if (chatbotOpen) setTimeout(() => inputRef.current?.focus(), 300)
   }, [chatbotOpen])
 
-  useEffect(() => {
+  // Reset the conversation when the language changes (adjusting state during render
+  // avoids an extra effect-triggered render pass).
+  const [lang, setLang] = useState(i18n.language)
+  if (lang !== i18n.language) {
+    setLang(i18n.language)
     setMessages([makeWelcome()])
-  }, [i18n.language])
+  }
 
   const sendMessage = async (text = input) => {
     const userMsg = typeof text === 'string' ? text.trim() : input.trim()

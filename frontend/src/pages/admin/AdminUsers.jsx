@@ -4,6 +4,7 @@ import api from '../../services/api'
 import Pagination from '../../components/ui/Pagination'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import useDebounce from '../../hooks/useDebounce'
 
 function exportCSV(rows) {
   const headers = ['Name', 'Email', 'Role', 'Orders', 'Products', 'Joined', 'Status']
@@ -19,10 +20,13 @@ function exportCSV(rows) {
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 })
-  const [loading, setLoading] = useState(true)
   const [roleFilter, setRoleFilter] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const debouncedSearch = useDebounce(search)
+  const fetchKey = `${roleFilter}|${debouncedSearch}|${page}`
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
   const [selected, setSelected] = useState(new Set())
 
   const allSelected = users.length > 0 && users.every((u) => selected.has(u.id))
@@ -40,11 +44,12 @@ export default function AdminUsers() {
   }
 
   useEffect(() => {
-    setLoading(true)
-    api.get('/admin/users', { params: { role: roleFilter || undefined, search: search || undefined, page } })
-      .then(({ data }) => { setUsers(data.data); setMeta(data.meta) })
-      .finally(() => setLoading(false))
-  }, [roleFilter, search, page])
+    let stale = false
+    api.get('/admin/users', { params: { role: roleFilter || undefined, search: debouncedSearch || undefined, page } })
+      .then(({ data }) => { if (!stale) { setUsers(data.data); setMeta(data.meta) } })
+      .finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [roleFilter, debouncedSearch, page, fetchKey])
 
   const toggleActive = async (user) => {
     try {

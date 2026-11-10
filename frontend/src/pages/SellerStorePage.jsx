@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Store, Package, Star, Calendar, MapPin } from 'lucide-react'
+import { Store, Package, Star, Calendar } from 'lucide-react'
 import api from '../services/api'
 import ProductCard from '../components/ProductCard'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
@@ -9,26 +9,30 @@ export default function SellerStorePage() {
   const { id } = useParams()
   const [seller, setSeller] = useState(null)
   const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 })
   const [sort, setSort] = useState('newest')
+  const fetchKey = `${id}|${sort}|${page}`
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
 
   useEffect(() => {
-    setLoading(true)
+    let stale = false
     Promise.all([
       api.get(`/sellers/${id}`),
       api.get('/products', { params: { seller_id: id, sort, page, per_page: 12 } }),
     ]).then(([sellerRes, productsRes]) => {
+      if (stale) return
       setSeller(sellerRes.data.data || sellerRes.data)
       setProducts(productsRes.data.data || [])
       setMeta(productsRes.data.meta || { current_page: 1, last_page: 1 })
     }).catch(() => {
       // fallback: try to load products even if seller endpoint fails
       api.get('/products', { params: { seller_id: id, sort, page, per_page: 12 } })
-        .then(({ data }) => { setProducts(data.data || []); setMeta(data.meta || { current_page: 1, last_page: 1 }) })
-    }).finally(() => setLoading(false))
-  }, [id, sort, page])
+        .then(({ data }) => { if (!stale) { setProducts(data.data || []); setMeta(data.meta || { current_page: 1, last_page: 1 }) } })
+    }).finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [id, sort, page, fetchKey])
 
   if (loading) return <LoadingSpinner center size="lg" />
 

@@ -23,6 +23,8 @@ export const registerUser = createAsyncThunk('auth/register', async (formData, {
 })
 
 export const fetchMe = createAsyncThunk('auth/me', async (_, { rejectWithValue }) => {
+  // Guests have no token: skip the request (it could only fail with 401).
+  if (!localStorage.getItem('token')) return { user: null }
   try {
     const { data } = await api.get('/me')
     return data

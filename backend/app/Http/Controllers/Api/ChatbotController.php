@@ -44,7 +44,7 @@ class ChatbotController extends Controller
 
         if ($intent === 'product_search') {
             $searchTerm = $this->extractSearchTerm($message);
-            $query = Product::with(['images'])->active()->inStock();
+            $query = Product::with(['images'])->active()->inStock()->withRating();
             $products = (strlen($searchTerm) > 2 ? $query->search($searchTerm) : $query->inRandomOrder())
                 ->limit(3)
                 ->get()

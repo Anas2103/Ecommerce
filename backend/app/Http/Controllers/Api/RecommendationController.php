@@ -28,7 +28,7 @@ class RecommendationController extends Controller
                     ->pluck('product_id')->toArray();
 
                 $products = Product::with(['images'])
-                    ->active()->inStock()
+                    ->active()->inStock()->withRating()
                     ->whereIn('category_id', $categoryIds)
                     ->whereNotIn('id', $ownedIds)
                     ->orderByDesc('views')
@@ -40,7 +40,7 @@ class RecommendationController extends Controller
         if ($products->count() < 8) {
             $existing = $products->pluck('id')->toArray();
             $fill = Product::with(['images'])
-                ->active()->inStock()
+                ->active()->inStock()->withRating()
                 ->whereNotIn('id', $existing)
                 ->orderByDesc('views')
                 ->limit(8 - $products->count())
@@ -66,14 +66,14 @@ class RecommendationController extends Controller
             ->toArray();
 
         $products = Product::with(['images'])
-            ->active()->inStock()
+            ->active()->inStock()->withRating()
             ->whereIn('id', $relatedProductIds)
             ->get();
 
         if ($products->count() < 8) {
             $existing = $products->pluck('id')->merge([$product->id])->toArray();
             $fill = Product::with(['images'])
-                ->active()->inStock()
+                ->active()->inStock()->withRating()
                 ->where('category_id', $product->category_id)
                 ->whereNotIn('id', $existing)
                 ->limit(8 - $products->count())
@@ -96,14 +96,14 @@ class RecommendationController extends Controller
             ->pluck('product_id');
 
         $products = Product::with(['images'])
-            ->active()->inStock()
+            ->active()->inStock()->withRating()
             ->whereIn('id', $productIds)
             ->get();
 
         if ($products->count() < 8) {
             $existing = $products->pluck('id')->toArray();
             $fill = Product::with(['images'])
-                ->active()->inStock()
+                ->active()->inStock()->withRating()
                 ->whereNotIn('id', $existing)
                 ->orderByDesc('views')
                 ->limit(8 - $products->count())

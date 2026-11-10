@@ -11,7 +11,7 @@ class WishlistController extends Controller
     public function index(Request $request)
     {
         $items = Wishlist::where('user_id', $request->user()->id)
-            ->with(['product' => fn($q) => $q->with('images')])
+            ->with(['product' => fn($q) => $q->with('images')->withRating()])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -29,10 +29,10 @@ class WishlistController extends Controller
 
         if ($existing) {
             $existing->delete();
-            return response()->json(['in_wishlist' => false, 'message' => 'Retiré de la liste de souhaits.']);
+            return response()->json(['in_wishlist' => false, 'message' => __('Removed from wishlist.')]);
         }
 
         Wishlist::create(['user_id' => $user->id, 'product_id' => $data['product_id']]);
-        return response()->json(['in_wishlist' => true, 'message' => 'Ajouté à la liste de souhaits.']);
+        return response()->json(['in_wishlist' => true, 'message' => __('Added to wishlist.')]);
     }
 }

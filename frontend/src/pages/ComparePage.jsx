@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { X, ShoppingCart, Star } from 'lucide-react'
+import { X, ShoppingCart } from 'lucide-react'
 import { clearCompare, toggleCompare } from '../store/compareSlice'
 import { addToCart } from '../store/cartSlice'
 import { setCartOpen } from '../store/uiSlice'

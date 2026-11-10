@@ -16,7 +16,8 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with(['images', 'category:id,name,name_fr,slug', 'seller:id,name'])
-            ->active();
+            ->active()
+            ->withRating();
 
         if ($search = $request->get('search')) {
             $query->search($search);
@@ -48,7 +49,7 @@ class ProductController extends Controller
             'price_asc'  => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),
             'popular'    => $query->orderBy('views', 'desc'),
-            'rating'     => $query->withAvg(['reviews as avg_rating' => fn($q) => $q->where('is_approved', true)], 'rating')->orderByDesc('avg_rating'),
+            'rating'     => $query->orderByDesc('avg_rating'),
             default      => $query->orderBy('created_at', 'desc'),
         };
 
@@ -69,7 +70,7 @@ class ProductController extends Controller
     public function featured()
     {
         $products = Product::with(['images', 'category:id,name,name_fr,slug'])
-            ->active()->featured()->inStock()
+            ->active()->featured()->inStock()->withRating()
             ->orderBy('created_at', 'desc')
             ->limit(8)
             ->get();
@@ -85,21 +86,25 @@ class ProductController extends Controller
             'seller:id,name',
             'tags',
             'reviews' => fn($q) => $q->where('is_approved', true)->with('user:id,name,avatar')->latest()->limit(10),
-        ])->where('slug', $slug)->active()->firstOrFail();
+        ])->where('slug', $slug)->active()->withRating()->firstOrFail();
 
         $product->increment('views');
 
         $related = Product::with(['images'])
             ->active()
+            ->withRating()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->inStock()
             ->limit(8)
             ->get();
 
+        // Count across all approved reviews (the eager-loaded `reviews` relation is limited to 10).
+        $counts = $product->reviews()->where('is_approved', true)
+            ->selectRaw('rating, COUNT(*) as total')->groupBy('rating')->pluck('total', 'rating');
         $ratingBreakdown = [];
         for ($i = 5; $i >= 1; $i--) {
-            $ratingBreakdown[$i] = $product->reviews->where('rating', $i)->count();
+            $ratingBreakdown[$i] = (int) ($counts[$i] ?? 0);
         }
 
         return response()->json([
@@ -171,7 +176,7 @@ class ProductController extends Controller
     {
         $user = $request->user();
         if ($user->isSeller() && $product->seller_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $data = $request->validate([
@@ -230,7 +235,7 @@ class ProductController extends Controller
     {
         $user = $request->user();
         if ($user->isSeller() && $product->seller_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         foreach ($product->images as $image) {
@@ -238,7 +243,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
-        return response()->json(['message' => 'Produit supprimé.']);
+        return response()->json(['message' => __('Product deleted.')]);
     }
 
     public function deleteImage(Request $request, ProductImage $image)
@@ -246,7 +251,7 @@ class ProductController extends Controller
         $product = $image->product;
         $user = $request->user();
         if ($user->isSeller() && $product->seller_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         Storage::disk('public')->delete($image->image_path);
@@ -256,7 +261,7 @@ class ProductController extends Controller
         }
 
         $image->delete();
-        return response()->json(['message' => 'Image supprimée.']);
+        return response()->json(['message' => __('Image deleted.')]);
     }
 
     public function sellerProductDetail(Request $request, int $id)
@@ -266,7 +271,7 @@ class ProductController extends Controller
             ->findOrFail($id);
 
         if ($user->isSeller() && $product->seller_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         return response()->json(['data' => $product]);
@@ -275,6 +280,7 @@ class ProductController extends Controller
     public function sellerProducts(Request $request)
     {
         $query = Product::with(['images', 'category:id,name,name_fr,slug'])
+            ->withRating()
             ->where('seller_id', $request->user()->id);
 
         if ($search = $request->get('search')) {
@@ -307,13 +313,13 @@ class ProductController extends Controller
         $product = $image->product;
         $user = $request->user();
         if ($user->isSeller() && $product->seller_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => __('Forbidden.')], 403);
         }
 
         $product->images()->update(['is_primary' => false]);
         $image->update(['is_primary' => true]);
 
-        return response()->json(['message' => 'Image principale mise à jour.']);
+        return response()->json(['message' => __('Main image updated.')]);
     }
 
     private function getCategoryWithChildrenIds(int $categoryId): array

@@ -5,6 +5,8 @@ import api from '../../services/api'
 import Pagination from '../../components/ui/Pagination'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import useDebounce from '../../hooks/useDebounce'
+import usePopup from '../../hooks/usePopup'
 
 const CSV_HEADERS = ['name', 'name_fr', 'price', 'compare_price', 'discount_percent', 'stock', 'sku', 'category_id', 'description', 'is_active']
 const CSV_TEMPLATE = [CSV_HEADERS.join(','), 'My Product,Mon Produit,199.99,249.99,20,50,SKU001,1,Product description,1'].join('\n')
@@ -33,7 +35,6 @@ function downloadTemplate() {
 export default function SellerProducts() {
   const [products, setProducts] = useState([])
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 })
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(1)
@@ -42,19 +43,22 @@ export default function SellerProducts() {
   const [importing, setImporting] = useState(false)
   const [importResults, setImportResults] = useState(null)
   const fileRef = useRef(null)
+  const debouncedSearch = useDebounce(search)
+  const [reloadToken, setReloadToken] = useState(0)
+  const load = () => setReloadToken((n) => n + 1)
+  const fetchKey = `${debouncedSearch}|${statusFilter}|${page}|${reloadToken}`
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
 
-  const load = async () => {
-    setLoading(true)
-    try {
-      const { data } = await api.get('/seller/products', {
-        params: { search: search || undefined, status: statusFilter || undefined, page }
-      })
-      setProducts(data.data)
-      setMeta(data.meta)
-    } finally { setLoading(false) }
-  }
-
-  useEffect(() => { load() }, [page, search, statusFilter])
+  useEffect(() => {
+    let stale = false
+    api.get('/seller/products', {
+      params: { search: debouncedSearch || undefined, status: statusFilter || undefined, page },
+    })
+      .then(({ data }) => { if (!stale) { setProducts(data.data); setMeta(data.meta) } })
+      .finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [debouncedSearch, statusFilter, page, fetchKey])
 
   const toggleActive = async (product) => {
     try {
@@ -115,7 +119,10 @@ export default function SellerProducts() {
     }
   }
 
-  const closeImport = () => { setImportOpen(false); setImportRows([]); setImportResults(null); if (fileRef.current) fileRef.current.value = '' }
+  // Reset on open (not on close) so the content doesn't vanish during the exit animation.
+  const openImport = () => { setImportRows([]); setImportResults(null); setImportOpen(true) }
+  const closeImport = () => setImportOpen(false)
+  const importPopup = usePopup(importOpen, closeImport)
 
   return (
     <div className="space-y-6">
@@ -127,7 +134,7 @@ export default function SellerProducts() {
           <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-1)' }}>My Products</h1>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setImportOpen(true)} className="btn-secondary flex items-center gap-2" style={{ fontSize: '0.875rem', padding: '10px 18px' }}>
+          <button onClick={openImport} className="btn-secondary flex items-center gap-2" style={{ fontSize: '0.875rem', padding: '10px 18px' }}>
             <Upload size={15} /> Import CSV
           </button>
           <Link to="/seller/products/new" className="btn-primary flex items-center gap-2" style={{ fontSize: '0.875rem', padding: '10px 20px' }}>
@@ -137,12 +144,16 @@ export default function SellerProducts() {
       </div>
 
       {/* CSV Import Modal */}
-      {importOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto', boxShadow: 'var(--shadow-card)' }}>
+      {importPopup.mounted && (
+        <div
+          className={`popup-overlay${importPopup.closing ? ' is-closing' : ''}`}
+          style={{ zIndex: 1000 }}
+          onMouseDown={(e) => { if (e.target === e.currentTarget) closeImport() }}
+        >
+          <div role="dialog" aria-modal="true" aria-label="Bulk import products" className="popup-panel" style={{ background: 'var(--bg-card)', border: '1.5px solid var(--border-light)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto', boxShadow: 'var(--shadow-card)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <h2 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-1)', margin: 0 }}>Bulk Import Products</h2>
-              <button onClick={closeImport} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', display: 'flex' }}><X size={18} /></button>
+              <button type="button" onClick={closeImport} aria-label="Close" className="popup-close" style={{ position: 'static' }}><X size={16} /></button>
             </div>
 
             <p style={{ fontSize: '0.84rem', color: 'var(--text-2)', marginBottom: 20, lineHeight: 1.6 }}>
@@ -223,7 +234,6 @@ export default function SellerProducts() {
               </div>
             )}
           </div>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 

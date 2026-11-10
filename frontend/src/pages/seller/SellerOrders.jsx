@@ -17,16 +17,19 @@ const STATUS_STYLES = {
 export default function SellerOrders() {
   const [orders, setOrders] = useState([])
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 })
-  const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(1)
+  const fetchKey = `${statusFilter}|${page}`
+  const [loadedKey, setLoadedKey] = useState(null)
+  const loading = loadedKey !== fetchKey
 
   useEffect(() => {
-    setLoading(true)
+    let stale = false
     api.get('/seller/orders', { params: { status: statusFilter || undefined, page } })
-      .then(({ data }) => { setOrders(data.data); setMeta(data.meta) })
-      .finally(() => setLoading(false))
-  }, [statusFilter, page])
+      .then(({ data }) => { if (!stale) { setOrders(data.data); setMeta(data.meta) } })
+      .finally(() => { if (!stale) setLoadedKey(fetchKey) })
+    return () => { stale = true }
+  }, [statusFilter, page, fetchKey])
 
   return (
     <div className="space-y-6">

@@ -7,18 +7,23 @@ import toast from 'react-hot-toast'
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [reloadToken, setReloadToken] = useState(0)
+  const [loadedToken, setLoadedToken] = useState(null)
+  const loading = loadedToken !== reloadToken
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ name: '', name_fr: '', description: '', parent_id: '', is_active: true, sort_order: 0 })
   const [saving, setSaving] = useState(false)
 
-  const load = async () => {
-    setLoading(true)
-    api.get('/admin/categories/all').then(({ data }) => setCategories(data.data)).finally(() => setLoading(false))
-  }
+  const load = () => setReloadToken((n) => n + 1)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    let stale = false
+    api.get('/admin/categories/all')
+      .then(({ data }) => { if (!stale) setCategories(data.data) })
+      .finally(() => { if (!stale) setLoadedToken(reloadToken) })
+    return () => { stale = true }
+  }, [reloadToken])
 
   const openCreate = () => { setEditing(null); setForm({ name: '', name_fr: '', description: '', parent_id: '', is_active: true, sort_order: 0 }); setModalOpen(true) }
   const openEdit = (cat) => { setEditing(cat); setForm({ name: cat.name, name_fr: cat.name_fr || '', description: cat.description || '', parent_id: cat.parent_id || '', is_active: cat.is_active, sort_order: cat.sort_order || 0 }); setModalOpen(true) }
