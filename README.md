@@ -21,7 +21,7 @@ Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shop
 - **Three roles, one platform** — customers, sellers (own catalogue, orders, returns, verification) and admins (analytics, users, moderation).
 - **Security work with tests** — ownership checks on every resource, private invoices and ID documents, atomic stock (no overselling), rate limiting, token expiry & revocation. [→ Security](#security)
 - **Performance** — product listings run 5 SQL queries regardless of page size (was 53), route-level code splitting (initial JS −70 %), debounced searches.
-- **Tested end to end** — 22 backend feature tests, 14 frontend unit/component tests and 10 Playwright browser tests, run by GitHub Actions on every push.
+- **Tested end to end** — 22 backend feature tests (run on both SQLite and PostgreSQL), 14 frontend unit/component tests and 10 Playwright browser tests, run by GitHub Actions on every push.
 - **Fully localized** — UI, API messages, emails and PDF invoices follow the user's language (EN / FR / AR).
 
 ---
@@ -97,7 +97,7 @@ Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shop
 | Layer | Technology |
 |---|---|
 | API | Laravel 12 · PHP 8.2 · Laravel Sanctum (Bearer tokens) |
-| Database | SQLite (default) — MySQL also supported |
+| Database | SQLite locally · PostgreSQL in production (Neon) — MySQL also works |
 | Payments | Stripe (PaymentIntents, Stripe.js) · PayPal (JS SDK + Orders API) |
 | PDF / email | barryvdh/laravel-dompdf · Laravel Mail (localized templates) |
 | Frontend | React 19 · Vite 8 · React Router 7 · Redux Toolkit |
@@ -118,7 +118,7 @@ flowchart LR
     B -- "PayPal JS SDK" --> P[(PayPal)]
     A -- "create & verify PaymentIntent" --> ST
     A -- "verify captured order" --> P
-    A --> D[(SQLite / MySQL)]
+    A --> D[(PostgreSQL / SQLite)]
     A --> S1[storage/app/public<br/>product images]
     A --> S2[storage/app/private<br/>invoices · seller documents]
     A -- "order emails, reset links" --> M[Mail]
@@ -224,7 +224,8 @@ Eleven more clients (`firstname.lastname@example.com`, same password) are create
 | `APP_ENV` / `APP_DEBUG` | **Always `production` / `false` when deployed** | `local` / `true` |
 | `APP_URL` | Public URL of the API | `http://localhost:8000` |
 | `FRONTEND_URL` | React app URL — CORS and links in emails | `http://localhost:3000` |
-| `DB_CONNECTION` | `sqlite` or `mysql` (+ `DB_HOST`, `DB_DATABASE`…) | `sqlite` |
+| `DB_CONNECTION` | `sqlite` locally, `pgsql` in production (`mysql` also works) | `sqlite` |
+| `DB_URL` | Full connection string for a hosted database, e.g. Neon: `postgresql://user:pass@host/db?sslmode=require` | — |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Admin account created by the seeder | — |
 | `SANCTUM_EXPIRATION` | API token lifetime (minutes) | `10080` |
 | `STRIPE_SECRET` | Stripe secret key (`sk_test_…`). Without it, card checkout is a demo and orders stay `pending` | — |
@@ -272,27 +273,35 @@ cd frontend && npm run lint && npm test && npm run build
 cd frontend && npx playwright install chromium && npm run test:e2e
 ```
 
-[GitHub Actions](.github/workflows/ci.yml) runs all three on every push and pull request: backend tests + `composer audit`, frontend lint/tests/build + `npm audit`, then the Playwright suite against a freshly seeded API.
+[GitHub Actions](.github/workflows/ci.yml) runs all three on every push and pull request: backend tests on **SQLite and PostgreSQL** + `composer audit`, frontend lint/tests/build + `npm audit`, then the Playwright suite against a freshly seeded API.
 
 ---
 
 ## Deployment
 
-Ready for **Render** (API, Docker) + **Vercel** (frontend).
+Production setup, all on free plans: **Neon** (PostgreSQL database) + **Render** (API, Docker) + **Vercel** (frontend).
 
-### Backend on Render
+### 1. Database on Neon
+
+1. Create a free account at [neon.com](https://neon.com) → **New project** (PostgreSQL, region close to your Render region).
+2. On the project dashboard click **Connect**, turn **Connection pooling off**, and copy the connection string — it looks like `postgresql://user:password@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require`.
+
+The tables and demo data are created automatically by the API on its first start — there is nothing to import.
+
+### 2. API on Render
 
 1. **New → Web Service** → connect the repository.
 2. **Language:** Docker · **Root Directory:** `backend` · **Dockerfile path:** `./Dockerfile` · **Instance:** Free · **Health check path:** `/up`.
-3. Add the environment variables listed in `backend/render.yaml`, including:
+3. Add the environment variables from [`backend/render.yaml`](backend/render.yaml) — in particular:
    - `APP_KEY` — output of `php artisan key:generate --show`
+   - `DB_CONNECTION=pgsql` and `DB_URL` — the Neon connection string
    - `APP_URL` — your Render URL · `FRONTEND_URL` — your Vercel URL
-   - `ADMIN_PASSWORD`, `STRIPE_SECRET`, and optionally `PAYPAL_CLIENT_ID` / `PAYPAL_SECRET`
-4. Deploy. The container runs migrations, seeds demo data **only into an empty database**, links storage and caches config/routes/views.
+   - `ADMIN_PASSWORD` — and optionally Stripe / PayPal keys
+4. Deploy. On start the container runs the migrations, seeds the demo data **only if the database is empty**, links storage and caches config/routes/views. Data then persists in Neon across restarts and redeploys.
 
-> ⚠️ Render's free plan has an **ephemeral** filesystem: the SQLite database and uploads reset on every redeploy (demo data is re-created automatically), and the service sleeps after ~15 minutes without traffic (the first request then takes up to a minute). For real data, attach a persistent disk or use MySQL (`pdo_mysql` is included in the image).
+> ⚠️ The free Render instance sleeps after ~15 minutes without traffic (the next request takes up to a minute), and its disk is temporary: **files uploaded at runtime** (new product photos, avatars, seller documents) are lost on redeploy. The database and the bundled product images are not affected.
 
-### Frontend on Vercel
+### 3. Frontend on Vercel
 
 1. **New Project** → import the repository → **Root Directory** `frontend` (framework: Vite).
 2. Add `VITE_API_URL`, `VITE_STORAGE_URL`, `VITE_STRIPE_PUBLISHABLE_KEY`, `VITE_PAYPAL_CLIENT_ID`.
@@ -305,7 +314,8 @@ Ready for **Render** (API, Docker) + **Vercel** (frontend).
 - [ ] `FRONTEND_URL` matches the deployed frontend exactly
 - [ ] Stripe / PayPal keys set (test keys for a demo, live keys + `PAYPAL_MODE=live` for real money)
 - [ ] SMTP configured so emails and password resets are delivered
-- [ ] Persistent storage for the database and uploads if the data matters
+- [ ] `DB_CONNECTION=pgsql` + `DB_URL` point to your hosted database
+- [ ] Persistent file storage (e.g. an S3 bucket) if runtime uploads must survive redeploys
 
 ---
 
@@ -424,7 +434,7 @@ All routes are prefixed with **`/api/v1`**. Authenticated routes need `Authoriza
 ## Known limitations / roadmap
 
 - Prices are in **MAD**; PayPal charges USD using a fixed rate (`PAYPAL_MAD_TO_USD`). Stripe charges MAD directly.
-- Free-tier hosting resets the SQLite database on redeploy (see [Deployment](#deployment)).
+- On free Render hosting, files uploaded at runtime are not kept across redeploys (see [Deployment](#deployment)).
 - Arabic invoices fall back to English (the PDF engine can't shape Arabic script).
 - Roadmap ideas: TypeScript migration, real-time order notifications, offline support (service worker).
 

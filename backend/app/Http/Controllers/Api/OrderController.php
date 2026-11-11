@@ -195,8 +195,8 @@ class OrderController extends Controller
             }
             if ($search = $request->get('search')) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('order_number', 'like', "%{$search}%")
-                      ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+                    $q->whereLike('order_number', "%{$search}%")
+                      ->orWhereHas('user', fn($u) => $u->whereLike('name', "%{$search}%")->orWhereLike('email', "%{$search}%"));
                 });
             }
         } else {

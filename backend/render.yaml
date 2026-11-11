@@ -1,10 +1,13 @@
-# Reference of the Render settings for the API (the README walks through creating the service in the dashboard).
+# Reference of the Render settings for the API.
+# The README ("Deployment") walks through creating this service in the Render dashboard:
+# Language Docker · Root Directory backend · Dockerfile ./Dockerfile · Health check /up
 services:
   - type: web
-    name: ecommerce-backend
+    name: ecommerce-api
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    rootDir: backend
     plan: free
+    healthCheckPath: /up
     envVars:
       - key: APP_NAME
         value: Ecommerce
@@ -12,37 +15,44 @@ services:
         value: production
       - key: APP_DEBUG
         value: "false"
+      # Paste the output of `php artisan key:generate --show` (must start with base64:)
+      - key: APP_KEY
+        sync: false
+      # e.g. https://ecommerce-api.onrender.com
       - key: APP_URL
-        fromService:
-          type: web
-          name: ecommerce-backend
-          property: host
+        sync: false
+      # e.g. https://ecommerce-yourname.vercel.app (CORS + links in emails)
+      - key: FRONTEND_URL
+        sync: false
+
+      # Database: Neon PostgreSQL (free). Paste the connection string from the Neon dashboard.
       - key: DB_CONNECTION
-        value: sqlite
-      - key: DB_DATABASE
-        value: /var/www/html/database/database.sqlite
+        value: pgsql
+      - key: DB_URL
+        sync: false
+
       - key: SESSION_DRIVER
         value: file
       - key: CACHE_STORE
         value: file
       - key: QUEUE_CONNECTION
         value: sync
-      - key: FILESYSTEM_DISK
-        value: public
-      - key: FRONTEND_URL
-        value: https://frontend-anas2103-projects.vercel.app
-      # Paste the output of `php artisan key:generate --show` (must start with base64:)
-      - key: APP_KEY
-        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
       - key: LOG_LEVEL
         value: warning
       - key: SANCTUM_EXPIRATION
         value: "10080"
-      # Seed demo data into an empty database on boot (the free plan's SQLite file is wiped on redeploy).
+      # Fill the database with demo data on first boot (only when it is empty).
       - key: SEED_ON_BOOT
         value: "true"
-      # Set these in the Render dashboard — never commit them.
       - key: ADMIN_PASSWORD
+        sync: false
+      - key: MAIL_MAILER
+        value: log
+
+      # Optional — real payments. Without them checkout runs in demo mode.
+      - key: STRIPE_SECRET
         sync: false
       - key: PAYPAL_CLIENT_ID
         sync: false
@@ -50,5 +60,3 @@ services:
         sync: false
       - key: PAYPAL_MODE
         value: sandbox
-      - key: STRIPE_SECRET
-        sync: false

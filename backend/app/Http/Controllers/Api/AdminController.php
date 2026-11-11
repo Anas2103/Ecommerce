@@ -38,9 +38,16 @@ class AdminController extends Controller
             ->orderBy('date')
             ->get();
 
+        // "YYYY-MM" month key — the SQL function differs per database.
+        $monthExpr = match (DB::connection()->getDriverName()) {
+            'pgsql'          => "to_char(created_at, 'YYYY-MM')",
+            'mysql', 'mariadb' => "DATE_FORMAT(created_at, '%Y-%m')",
+            default          => "strftime('%Y-%m', created_at)",
+        };
+
         $revenueMonthly = Order::where('payment_status', 'paid')
             ->where('created_at', '>=', $yearAgo)
-            ->selectRaw("strftime('%Y-%m', created_at) as month, SUM(total) as revenue, COUNT(*) as orders")
+            ->selectRaw("{$monthExpr} as month, SUM(total) as revenue, COUNT(*) as orders")
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -92,7 +99,7 @@ class AdminController extends Controller
         }
 
         if ($search = $request->get('search')) {
-            $query->where(fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+            $query->where(fn($q) => $q->whereLike('name', "%{$search}%")->orWhereLike('email', "%{$search}%"));
         }
 
         $users = $query->orderBy('created_at', 'desc')->paginate(20);
@@ -165,8 +172,8 @@ class AdminController extends Controller
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+                $q->whereLike('order_number', "%{$search}%")
+                  ->orWhereHas('user', fn($u) => $u->whereLike('name', "%{$search}%")->orWhereLike('email', "%{$search}%"));
             });
         }
 

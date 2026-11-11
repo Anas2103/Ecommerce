@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libgd-dev \
     libxml2-dev \
     libsqlite3-dev \
+    libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,6 +20,7 @@ RUN docker-php-ext-configure gd --with-jpeg \
         pdo \
         pdo_mysql \
         pdo_sqlite \
+        pdo_pgsql \
         zip \
         gd \
         dom \

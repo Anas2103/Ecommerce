@@ -75,10 +75,10 @@ class Product extends Model
     public function scopeSearch($query, string $term)
     {
         return $query->where(function ($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-              ->orWhere('name_fr', 'like', "%{$term}%")
-              ->orWhere('description', 'like', "%{$term}%")
-              ->orWhere('sku', 'like', "%{$term}%");
+            $q->whereLike('name', "%{$term}%")
+              ->orWhereLike('name_fr', "%{$term}%")
+              ->orWhereLike('description', "%{$term}%")
+              ->orWhereLike('sku', "%{$term}%");
         });
     }
 
