@@ -9,7 +9,7 @@
 A multi-vendor online store built with **Laravel 12** (REST API) and **React 19** (SPA).
 Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shops, and admins moderate the marketplace — in **English, French and Arabic** (right-to-left).
 
-**🔗 Live demo:** [frontend-mu-three-7pllv9w2vr.vercel.app](https://frontend-mu-three-7pllv9w2vr.vercel.app) · **Demo logins:** see [Demo accounts](#demo-accounts--data) _(the free server sleeps when idle — the first load can take up to a minute)_
+**🔗 Live demo:** [anas2103-ecommerce.vercel.app](https://anas2103-ecommerce.vercel.app) · **Demo logins:** see [Demo accounts](#demo-accounts--data) _(the free server sleeps when idle — the first load can take up to a minute)_
 
 ![Storefront](docs/screenshots/home.jpg)
 
