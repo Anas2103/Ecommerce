@@ -7,9 +7,11 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 A multi-vendor online store built with **Laravel 12** (REST API) and **React 19** (SPA).
-Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shops, and admins moderate the marketplace — in **English, French and Arabic** (right-to-left).
+Customers shop and check out with **Stripe** or **PayPal** support, sellers run their own shops, and admins moderate the marketplace — in **English, French and Arabic** (right-to-left).
 
-**🔗 Live demo:** [anas2103-ecommerce.vercel.app](https://anas2103-ecommerce.vercel.app) · **Demo logins:** see [Demo accounts](#demo-accounts--data) _(the free server sleeps when idle — the first load can take up to a minute)_
+**🔗 Live demo:** [anas2103-ecommerce.vercel.app](https://anas2103-ecommerce.vercel.app) · **Demo logins:** see [Demo accounts](#demo-accounts--data)
+
+> **About the live demo:** it runs on free hosting, so the first load can take up to a minute while the server wakes up. No payment keys are configured there, so checkout runs in **demo mode** (orders are created with payment *pending*) and emails are not sent. Use the seller and client demo accounts; the admin account has a private password.
 
 ![Storefront](docs/screenshots/home.jpg)
 
@@ -21,8 +23,8 @@ Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shop
 - **Three roles, one platform** — customers, sellers (own catalogue, orders, returns, verification) and admins (analytics, users, moderation).
 - **Security work with tests** — ownership checks on every resource, private invoices and ID documents, atomic stock (no overselling), rate limiting, token expiry & revocation. [→ Security](#security)
 - **Performance** — product listings run 5 SQL queries regardless of page size (was 53), route-level code splitting (initial JS −70 %), debounced searches.
-- **Tested end to end** — 22 backend feature tests (run on both SQLite and PostgreSQL), 14 frontend unit/component tests and 10 Playwright browser tests, run by GitHub Actions on every push.
-- **Fully localized** — UI, API messages, emails and PDF invoices follow the user's language (EN / FR / AR).
+- **Tested end to end** — 26 backend tests (unit + feature, run on both SQLite and PostgreSQL), 14 frontend unit/component tests and 10 Playwright browser tests, run by GitHub Actions on every push.
+- **Fully localized** — the UI, API messages and emails follow the user's language (EN / FR / AR); PDF invoices are generated in English or French.
 
 ---
 
@@ -86,7 +88,7 @@ Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shop
 - **Returns** across the marketplace and **seller verification** (approve / reject documents)
 
 ### Platform
-- English / French / Arabic with right-to-left layout — UI, API messages, emails and invoices
+- English / French / Arabic with right-to-left layout — UI, API messages and emails (invoices in English or French)
 - Light / dark mode, two colour palettes, responsive down to small phones
 - Animated, accessible popups (Escape to close, focus return, scroll lock, reduced-motion support)
 
@@ -105,7 +107,7 @@ Customers shop and pay with **Stripe** or **PayPal**, sellers run their own shop
 | i18n | i18next (frontend) · Laravel JSON translations (backend) |
 | Charts | Recharts |
 | Testing | PHPUnit · Vitest + React Testing Library · Playwright |
-| CI / hosting | GitHub Actions · Docker on Render (API) · Vercel (frontend) |
+| CI / hosting | GitHub Actions · Docker on Render (API) · Vercel (frontend) · Neon (PostgreSQL) |
 
 ---
 
@@ -139,7 +141,7 @@ flowchart LR
 |---|---|
 | PHP | 8.2+, extensions `pdo_sqlite`, `mbstring`, `openssl`, `fileinfo`, `gd`, `zip`, `curl` |
 | Composer | 2.x |
-| Node.js | 20+ (with npm) |
+| Node.js | 20.19+ or 22.12+ (with npm) |
 
 > **Windows:** `winget install PHP.PHP.8.2`, enable the extensions above in `php.ini`, and install Composer from [getcomposer.org](https://getcomposer.org/download/).
 
@@ -157,7 +159,7 @@ cd backend
 composer install
 cp .env.example .env            # Windows PowerShell: Copy-Item .env.example .env
 php artisan key:generate
-php artisan migrate --seed      # creates database/database.sqlite and fills it with demo data
+php artisan migrate --seed      # creates database/database.sqlite (answer "yes") and fills it with demo data
 php artisan storage:link        # serves product images at /storage
 php artisan serve
 ```
@@ -199,15 +201,15 @@ Product descriptions (English + French) live in `backend/database/seeders/data/p
 
 ## Demo accounts & data
 
-| Role | Email | Password (local only) |
+| Role | Email | Password |
 |---|---|---|
-| Admin | `admin@ecommerce.com` | `password` |
+| Admin | `admin@ecommerce.com` | `password` locally — on a deployed site it is the private `ADMIN_PASSWORD` |
 | Seller | `seller@ecommerce.com` · `maison@ecommerce.com` · `mode@ecommerce.com` · `sport@ecommerce.com` | `password` |
 | Client | `client@ecommerce.com` (orders, wishlist and a filled cart) | `password` |
 
 Eleven more clients (`firstname.lastname@example.com`, same password) are created too.
 
-**Seeded data:** 23 categories · 67 products with images and EN/FR descriptions · 4 sellers · 12 clients · 64 orders over the last 6 months in every status · reviews (some awaiting moderation) · return requests · wishlists · coupons `WELCOME10`, `SAVE50`, `SUMMER20` · 3 shipping methods · seller verification documents.
+**Seeded data:** 22 categories (8 main + 14 sub-categories) · 67 products with images and EN/FR descriptions · 4 sellers · 12 clients · 64 orders over the last 6 months in every status · reviews (some awaiting moderation) · return requests · wishlists · coupons `WELCOME10`, `SAVE50`, `SUMMER20` · 3 shipping methods · seller verification documents.
 
 **Test payments** (once Stripe test keys are set): card `4242 4242 4242 4242`, any future date, any CVC. Use `4000 0027 6000 3184` to see 3-D Secure.
 
@@ -233,7 +235,7 @@ Eleven more clients (`firstname.lastname@example.com`, same password) are create
 | `PAYPAL_CLIENT_ID` / `PAYPAL_SECRET` | Server-side PayPal verification. Without them, PayPal orders stay `pending` | — |
 | `PAYPAL_MODE` / `PAYPAL_MAD_TO_USD` | `sandbox`/`live` · MAD→USD rate used for PayPal | `sandbox` · `10` |
 | `MAIL_MAILER` … | `log` writes emails to `storage/logs/laravel.log`. Use SMTP in production (see below) | `log` |
-| `SEED_ON_BOOT` | Docker only: seed demo data when the database is empty | `true` |
+| `SEED_ON_BOOT` | Docker only: seed demo data on start-up if the database is empty | `false` (set to `true` on Render) |
 
 **Sending real emails** (order confirmation, status updates, password reset): any SMTP provider works — e.g. [Resend](https://resend.com), [Brevo](https://www.brevo.com) or [Mailtrap](https://mailtrap.io) for testing:
 
@@ -262,8 +264,8 @@ MAIL_FROM_ADDRESS="shop@your-domain.com"
 ## Testing & CI
 
 ```bash
-# Backend — 22 feature tests: cart ownership, Stripe & PayPal verification, coupons,
-# private invoices, role permissions, password reset, translations, query counts…
+# Backend — 26 tests: pricing rules (unit) + cart ownership, Stripe & PayPal verification,
+# coupons, private invoices, role permissions, password reset, translations, query counts…
 cd backend && php artisan test
 
 # Frontend — lint, 14 unit/component tests (Vitest + Testing Library), build
@@ -391,7 +393,7 @@ All routes are prefixed with **`/api/v1`**. Authenticated routes need `Authoriza
 | GET/PUT/DELETE | `/admin/users` · `/admin/users/{id}` | Users |
 | GET | `/admin/products` · `/admin/orders` | All products / orders |
 | PUT | `/admin/orders/{id}/status` | Update order status (restocks on cancel) |
-| CRUD | `/admin/categories/all` · `/admin/categories/{id}` | Categories |
+| GET/POST/PUT/DELETE | `/admin/categories/all` · `/admin/categories` · `/admin/categories/{id}` | Categories |
 | GET/PUT | `/admin/reviews` · `/admin/reviews/{id}/approve` | Review moderation |
 | GET/PUT | `/admin/seller-documents` · `…/{id}/approve` · `…/{id}/reject` | Seller verification |
 | GET/PATCH | `/admin/returns` · `/admin/returns/{id}` | All returns |
@@ -413,7 +415,7 @@ All routes are prefixed with **`/api/v1`**. Authenticated routes need `Authoriza
 │   ├── database/seeders/            Catalogue, descriptions (data/*.json), DemoDataSeeder
 │   ├── lang/                        fr.json · ar.json (API messages, emails, invoices)
 │   ├── resources/views/             Email and invoice templates
-│   ├── tests/Feature/               PHPUnit feature tests
+│   ├── tests/                       PHPUnit unit + feature tests
 │   └── Dockerfile · docker-entrypoint.sh · render.yaml
 ├── frontend/                        React 19 SPA
 │   ├── src/

@@ -10,5 +10,7 @@ Common commands:
 npm install
 npm run dev       # http://localhost:3000 (expects the API on http://localhost:8000)
 npm run lint
+npm test          # unit / component tests (Vitest)
+npm run test:e2e  # browser tests (Playwright, needs the API running)
 npm run build
 ```

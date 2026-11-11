@@ -11,5 +11,5 @@ Common commands:
 composer install
 php artisan migrate --seed     # create + fill the database with demo data
 php artisan serve              # http://localhost:8000
-php artisan test               # feature tests
+php artisan test               # unit + feature tests
 ```
