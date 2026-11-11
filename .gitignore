@@ -31,3 +31,6 @@ ANAS.md
 frontend/test-results/
 frontend/playwright-report/
 frontend/coverage/
+.neon
+node_modules/
+.env.local

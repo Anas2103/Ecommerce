@@ -25,12 +25,7 @@ artisan "migrate --force"
 # Seed demo data only when asked to, and only into an empty database
 # (never re-seed over real data on restart).
 if [ "${SEED_ON_BOOT:-false}" = "true" ]; then
-    USERS=$(su -s /bin/bash www-data -c "cd /var/www/html && php artisan tinker --execute='echo \App\Models\User::count();'" | tail -n1)
-    if [ "$USERS" = "0" ]; then
-        artisan "db:seed --force"
-    else
-        echo "[info] database already has data — skipping seed"
-    fi
+    artisan "app:seed-if-empty"
 fi
 
 # Link public storage (ignore if already linked)
