@@ -445,3 +445,15 @@ All routes are prefixed with **`/api/v1`**. Authenticated routes need `Authoriza
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
+
+---
+
+## More projects
+
+- [**CarsRental**](https://github.com/Anas2103/CarsRental) — car rental manager with roles and PayPal (Laravel · React)
+- [**HireMatch**](https://github.com/Anas2103/AiJobBoard) — AI job board that scores CVs against jobs (Laravel · React · OpenAI)
+- [**Relay**](https://github.com/Anas2103/Relay) — Telegram-style chat with E2EE secret chats and calls (Cloudflare Workers · React) · [live demo](https://relay-chat.bunbunchat.workers.dev)
+- [**SmartCourse**](https://github.com/Anas2103/SmartCoursePlatform) — online course platform with Stripe and certificates (Laravel · React)
+- [**Student & Course Manager**](https://github.com/Anas2103/StudentsCourseManager) — school management with 4 roles (Laravel · React)
+
+More about me on my [GitHub profile](https://github.com/Anas2103).
